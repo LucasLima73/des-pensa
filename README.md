@@ -9,3 +9,7 @@ https://code.visualstudio.com/
 
 Após configurado, entre na raiz do projeto e rode o comando: 
 npx start
+Faça a leitura do QRcode para abrir o App no seu celular, baixando o App expo.
+
+Ou configure o Emulador do Android Studio
+https://developer.android.com/studio?hl=pt-br
