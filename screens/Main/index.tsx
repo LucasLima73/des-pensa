@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
 
-const MainScreen = ({ navigation }) => {
+const MainScreen = ({ navigation }: { navigation: any }) => {
   const handleLogout = () => {
     // Lógica para fazer logout do usuário
     // Por exemplo, navegar de volta para a tela de login

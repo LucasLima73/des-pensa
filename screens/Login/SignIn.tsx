@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 
-const SignIn = ({ navigation }) => {
+const SignIn = ({ navigation }: { navigation: any }) => {
   const handleSignIn = () => {
     navigation.replace("Tabs");
   };

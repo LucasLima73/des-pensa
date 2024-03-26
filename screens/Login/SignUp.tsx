@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 
-const SignUp = ({ navigation }) => {
+const SignUp = ({ navigation }: { navigation: any }) => {
   const handleSignUp = () => {
     // Lógica para registrar o usuário
   };

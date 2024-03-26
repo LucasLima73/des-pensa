@@ -3,7 +3,7 @@ import React from "react";
 
 import Onboarding from "react-native-onboarding-swiper";
 
-const Simple = ({ navigation }) => (
+const Simple = ({ navigation }: { navigation: any }) => (
   <Onboarding
     skipLabel="Pular" // Altera o texto do botão "Skip"
     nextLabel="Próximo"
