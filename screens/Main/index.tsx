@@ -1,11 +1,11 @@
-import React from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import React from "react";
+import { View, Text, StyleSheet, Button } from "react-native";
 
 const MainScreen = ({ navigation }) => {
   const handleLogout = () => {
     // Lógica para fazer logout do usuário
     // Por exemplo, navegar de volta para a tela de login
-    navigation.navigate('Login');
+    navigation.navigate("Tabs");
   };
 
   return (
@@ -19,12 +19,12 @@ const MainScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
   },
 });
