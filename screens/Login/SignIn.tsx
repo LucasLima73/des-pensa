@@ -1,9 +1,25 @@
-import React from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+import { loginUser } from "../../config/firebase";
 
 const SignIn = ({ navigation }: { navigation: any }) => {
-  const handleSignIn = () => {
-    navigation.replace("Tabs");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | undefined>(undefined);
+  const handleSignIn = async () => {
+    try {
+      await loginUser(email, password);
+      navigation.replace("Tabs");
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
   const navigateToSignUp = () => {
@@ -17,12 +33,23 @@ const SignIn = ({ navigation }: { navigation: any }) => {
         style={styles.input}
         placeholder="Email"
         keyboardType="email-address"
+        value={email}
+        onChangeText={setEmail}
       />
-      <TextInput style={styles.input} placeholder="Password" secureTextEntry />
+      <TextInput
+        style={styles.input}
+        placeholder="Senha"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+      />
       <Button title="Sign In" onPress={handleSignIn} />
-      <Text style={styles.link} onPress={navigateToSignUp}>
-        Don't have an account? Sign Up
-      </Text>
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+      <TouchableOpacity style={styles.signUpLink} onPress={navigateToSignUp}>
+        <Text style={styles.signUpLinkText}>
+          Não tem uma conta? Cadastre-se aqui
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -32,23 +59,35 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#ffffff",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
+    color: "#333333",
   },
   input: {
     width: "80%",
     height: 40,
-    borderColor: "gray",
+    borderColor: "#cccccc",
     borderWidth: 1,
-    marginBottom: 10,
+    marginBottom: 20,
     paddingHorizontal: 10,
+    borderRadius: 8,
+    fontSize: 16,
+    color: "#333333",
   },
-  link: {
+  error: {
+    color: "red",
+    marginBottom: 10,
+  },
+  signUpLink: {
     marginTop: 20,
-    color: "blue",
+  },
+  signUpLinkText: {
+    color: "#007bff",
+    fontSize: 16,
     textDecorationLine: "underline",
   },
 });
