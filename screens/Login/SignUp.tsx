@@ -1,9 +1,26 @@
-import React from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+import { signUpUser } from "../../config/firebase"; // Importe a função signUpUser
 
 const SignUp = ({ navigation }: { navigation: any }) => {
-  const handleSignUp = () => {
-    // Lógica para registrar o usuário
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<any>("");
+
+  const handleSignUp = async () => {
+    try {
+      await signUpUser(email, password); // Chame a função signUpUser
+      navigation.replace("Tabs");
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
   const navigateToSignIn = () => {
@@ -12,43 +29,65 @@ const SignUp = ({ navigation }: { navigation: any }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Sign Up</Text>
+      <Text style={styles.title}>Crie sua conta</Text>
       <TextInput
         style={styles.input}
         placeholder="Email"
         keyboardType="email-address"
+        value={email}
+        onChangeText={setEmail}
       />
-      <TextInput style={styles.input} placeholder="Password" secureTextEntry />
-      <Button title="Sign Up" onPress={handleSignUp} />
-      <Text style={styles.link} onPress={navigateToSignIn}>
-        Already have an account? Sign In
-      </Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Senha"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+      />
+      <Button title="Criar conta" onPress={handleSignUp} />
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+      <TouchableOpacity style={styles.signInLink} onPress={navigateToSignIn}>
+        <Text style={styles.signInLinkText}>Já tem uma conta? Entre aqui</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
+// Estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#ffffff",
   },
   title: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: "bold",
     marginBottom: 20,
+    color: "#333333",
   },
   input: {
     width: "80%",
     height: 40,
-    borderColor: "gray",
+    borderColor: "#cccccc",
     borderWidth: 1,
-    marginBottom: 10,
+    marginBottom: 20,
     paddingHorizontal: 10,
+    borderRadius: 8,
+    fontSize: 16,
+    color: "#333333",
   },
-  link: {
+  error: {
+    color: "red",
+    marginBottom: 10,
+  },
+  signInLink: {
     marginTop: 20,
-    color: "blue",
+  },
+  signInLinkText: {
+    color: "#007bff",
+    fontSize: 16,
     textDecorationLine: "underline",
   },
 });
