@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, ScrollView, Image } from "react-native";
+import { useAuth } from "../../config/AuthProvider";
 
 const ProductItem = ({ product }: { product: { id: number, name: string, image: string, expiryDate: Date } }) => {
   const calculateDaysUntilExpiry = (expiryDate: Date) => {
@@ -28,6 +29,8 @@ const ProductItem = ({ product }: { product: { id: number, name: string, image: 
 };
 
 const MainScreen = ({ navigation }: { navigation: any }) => {
+  const { user } = useAuth(); // Obtenha o usuário do contexto de autenticação
+
   const productList = [
     {
       id: 1,
@@ -52,6 +55,7 @@ const MainScreen = ({ navigation }: { navigation: any }) => {
 
   return (
     <View style={styles.container}>
+      {user && <Text style={styles.emailText}>Bem-vindo, {user.name}</Text>}
       <Text style={styles.heading}>Produtos de Mercado</Text>
       <ScrollView style={styles.scrollView}>
         {productList.map((product) => (
@@ -96,6 +100,11 @@ const styles = StyleSheet.create({
   expiryText: {
     fontSize: 14,
     color: "#888",
+  },
+  emailText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
 });
 

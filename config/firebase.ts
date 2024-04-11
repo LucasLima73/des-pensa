@@ -1,8 +1,12 @@
 import firebase from "firebase/app";
 import "firebase/auth";
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDNF38ZXGnIEieN7pJP9PPHBQc0YlqlNiI",
@@ -18,9 +22,29 @@ initializeApp(firebaseConfig);
 const db = getFirestore();
 
 const auth = getAuth();
-const signUpUser = async (email: string, password: string) => {
+const signUpUser = async (email: string, password: string, name: string) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    // Salvar o nome no banco de dados
+    await addDoc(collection(db, "users"), {
+      name: name,
+      email: email,
+    });
+
+    return userCredential.user;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const loginUser = async (email: string, password: string) => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(
       auth,
       email,
       password
@@ -30,12 +54,4 @@ const signUpUser = async (email: string, password: string) => {
     throw error;
   }
 };
-const loginUser = async (email: string, password: string) => {
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    return userCredential.user;
-  } catch (error) {
-    throw error;
-  }
-};
-export { auth, db, signUpUser, loginUser };
+export { auth, db, signUpUser, loginUser, collection };

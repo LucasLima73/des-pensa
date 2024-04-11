@@ -1,25 +1,18 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Button,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from "react-native";
+import { useAuth } from "../../config/AuthProvider";
 import { loginUser } from "../../config/firebase";
 
 const SignIn = ({ navigation }: { navigation: any }) => {
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | undefined>(undefined);
+  const [error, setError] = useState("");
+
   const handleSignIn = async () => {
-    try {
-      await loginUser(email, password);
+      const userData = await loginUser(email, password);
+      login(email, password);
       navigation.replace("Tabs");
-    } catch (error) {
-      setError(error.message);
-    }
   };
 
   const navigateToSignUp = () => {
@@ -43,7 +36,7 @@ const SignIn = ({ navigation }: { navigation: any }) => {
         value={password}
         onChangeText={setPassword}
       />
-      <Button title="Sign In" onPress={handleSignIn} />
+      <Button title="Entrar" onPress={handleSignIn} />
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <TouchableOpacity style={styles.signUpLink} onPress={navigateToSignUp}>
         <Text style={styles.signUpLinkText}>

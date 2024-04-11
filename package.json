@@ -9,6 +9,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-navigation/bottom-tabs": "^6.5.20",
     "@react-navigation/native": "^6.1.16",
     "@react-navigation/native-stack": "^6.9.25",
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@types/firebase": "^3.2.1",
     "@types/react": "~18.2.45",
     "@types/react-native-onboarding-swiper": "^1.1.9",
     "@types/react-native-vector-icons": "^6.4.18",

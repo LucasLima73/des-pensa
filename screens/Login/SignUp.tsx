@@ -7,20 +7,17 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import { signUpUser } from "../../config/firebase"; // Importe a função signUpUser
+import { signUpUser } from "../../config/firebase";
 
 const SignUp = ({ navigation }: { navigation: any }) => {
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<any>("");
 
   const handleSignUp = async () => {
-    try {
-      await signUpUser(email, password); // Chame a função signUpUser
+      await signUpUser(email, password,name);
       navigation.replace("Tabs");
-    } catch (error) {
-      setError(error.message);
-    }
   };
 
   const navigateToSignIn = () => {
@@ -32,8 +29,13 @@ const SignUp = ({ navigation }: { navigation: any }) => {
       <Text style={styles.title}>Crie sua conta</Text>
       <TextInput
         style={styles.input}
+        placeholder="Nome"
+        value={name}
+        onChangeText={setName}
+      />
+      <TextInput
+        style={styles.input}
         placeholder="Email"
-        keyboardType="email-address"
         value={email}
         onChangeText={setEmail}
       />
