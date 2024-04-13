@@ -9,7 +9,7 @@ type User = {
 
 type AuthContextType = {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
+  //login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -19,19 +19,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const auth = getAuth();
 
-  const login = async (email: string, password: string) => {
-    try {
-      const response = await signInWithEmailAndPassword(auth, email, password);
-      const { user } = response;
-      if (user) {
-        const displayName = user.displayName || ""; 
-        console.log(displayName);
-        setUser({ email: user.email || "", name: displayName });
-      }
-    } catch (error) {
-      throw new Error("Erro ao fazer login");
-    }
-  };
+  // const login = async (email: string, password: string) => {
+  //   try {
+  //     const response = await signInWithEmailAndPassword(auth, email, password);
+  //     const { user } = response;
+  //     if (user) {
+  //       const displayName = user.displayName || ""; 
+  //       console.log(displayName);
+  //       setUser({ email: user.email || "", name: displayName });
+  //     }
+  //   } catch (error) {
+  //     throw new Error("Erro ao fazer login");
+  //   }
+  // };
   
 
   const logout = async () => {
@@ -44,7 +44,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, logout }}>
       {children}
     </AuthContext.Provider>
   );

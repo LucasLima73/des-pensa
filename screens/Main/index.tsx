@@ -1,9 +1,17 @@
-import React from "react";
+// MainScreen.tsx
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView, Image } from "react-native";
 import { useAuth } from "../../config/AuthProvider";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
-const ProductItem = ({ product }: { product: { id: number, name: string, image: string, expiryDate: Date } }) => {
-  const calculateDaysUntilExpiry = (expiryDate: Date) => {
+const ProductItem = ({
+  product,
+}: {
+  product: { id: string; name: string; image: string; expiryDate: string };
+}) => {
+  const calculateDaysUntilExpiry = (expiryDateString: string) => {
+    const expiryDate = new Date(expiryDateString);
     const now = new Date();
     const diff = expiryDate.getTime() - now.getTime();
     return Math.ceil(diff / (1000 * 3600 * 24));
@@ -11,55 +19,59 @@ const ProductItem = ({ product }: { product: { id: number, name: string, image: 
 
   const daysUntilExpiry = calculateDaysUntilExpiry(product.expiryDate);
 
-  // Definindo estilos baseados na proximidade do vencimento
   let itemStyle = styles.productItem;
   if (daysUntilExpiry <= 3) {
-    itemStyle = { ...itemStyle, borderColor: "red" }; // Adiciona uma borda vermelha para indicar proximidade do vencimento
+    itemStyle = { ...itemStyle, borderColor: "red" };
   } else if (daysUntilExpiry <= 7) {
-    itemStyle = { ...itemStyle, borderColor: "orange" }; // Adiciona uma borda laranja para indicar proximidade do vencimento
+    itemStyle = { ...itemStyle, borderColor: "orange" };
   }
 
   return (
     <View style={itemStyle}>
       <Image source={{ uri: product.image }} style={styles.productImage} />
       <Text style={styles.productName}>{product.name}</Text>
-      <Text style={styles.expiryText}>{daysUntilExpiry} dias até o vencimento</Text>
+      <Text style={styles.expiryText}>
+        {daysUntilExpiry} dias até o vencimento
+      </Text>
     </View>
   );
 };
 
 const MainScreen = ({ navigation }: { navigation: any }) => {
-  const { user } = useAuth(); // Obtenha o usuário do contexto de autenticação
+  const user = getAuth().currentUser;
+  const [products, setProducts] = useState(
+    [] as { id: string; name: string; image: string; expiryDate: string }[]
+  );
 
-  const productList = [
-    {
-      id: 1,
-      name: "Maçã",
-      image: "https://www.shutterstock.com/image-photo/bunch-bananas-isolated-on-white-600nw-1722111529.jpg",
-      expiryDate: new Date("2024-04-30"),
-    },
-    {
-      id: 2,
-      name: "Banana",
-      image: "https://www.shutterstock.com/image-photo/bunch-bananas-isolated-on-white-600nw-1722111529.jpg",
-      expiryDate: new Date("2024-04-15"),
-    },
-    {
-      id: 3,
-      name: "Laranja",
-      image: "https://www.shutterstock.com/image-photo/bunch-bananas-isolated-on-white-600nw-1722111529.jpg",
-      expiryDate: new Date("2024-05-05"),
-    },
-    // Adicione mais produtos conforme necessário
-  ];
+  const fetchProducts = async () => {
+    if (user) {
+      const firestore = getFirestore();
+      const querySnapshot = await getDocs(
+        collection(firestore, `users/${user.uid}/foods`)
+      );
+      const productsData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        name: doc.data().name,
+        image: doc.data().image,
+        expiryDate: doc.data().expiryDate, 
+      }));
+      setProducts(productsData);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, [user]);
 
   return (
     <View style={styles.container}>
-      {user && <Text style={styles.emailText}>Bem-vindo, {user.name}</Text>}
+      {user && (
+        <Text style={styles.emailText}>Bem-vindo, {user.displayName}</Text>
+      )}
       <Text style={styles.heading}>Produtos de Mercado</Text>
       <ScrollView style={styles.scrollView}>
-        {productList.map((product) => (
-          <ProductItem key={product.id} product={product} />
+        {products.map((product) => (
+          <ProductItem key={parseInt(product.id)} product={product} />
         ))}
       </ScrollView>
     </View>
@@ -84,7 +96,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
     borderWidth: 2,
-    borderColor: "transparent", // Inicialmente transparente
+    borderColor: "transparent",
     borderRadius: 10,
     padding: 10,
   },

@@ -4,14 +4,14 @@ import { useAuth } from "../../config/AuthProvider";
 import { loginUser } from "../../config/firebase";
 
 const SignIn = ({ navigation }: { navigation: any }) => {
-  const { login } = useAuth();
+ // const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const handleSignIn = async () => {
       const userData = await loginUser(email, password);
-      login(email, password);
+     // login(email, password);
       navigation.replace("Tabs");
   };
 
