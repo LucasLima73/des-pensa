@@ -8,6 +8,7 @@ type User = {
 };
 
 type AuthContextType = {
+  currentUser: any;
   user: User | null;
   //login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;

@@ -1,13 +1,9 @@
-import firebase from "firebase/app";
-import "firebase/auth";
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
-import {
-  createUserWithEmailAndPassword,
-  getAuth,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Adicionando AsyncStorage
 
+// Inicializando o aplicativo Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDNF38ZXGnIEieN7pJP9PPHBQc0YlqlNiI",
   authDomain: "des-pensa-1d38e.firebaseapp.com",
@@ -20,15 +16,12 @@ const firebaseConfig = {
 initializeApp(firebaseConfig);
 
 const db = getFirestore();
-
 const auth = getAuth();
+
+// Função para cadastro de usuário
 const signUpUser = async (email: string, password: string, name: string) => {
   try {
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
     // Salvar o nome no banco de dados
     await addDoc(collection(db, "users"), {
@@ -42,16 +35,15 @@ const signUpUser = async (email: string, password: string, name: string) => {
   }
 };
 
+// Função para login de usuário
 const loginUser = async (email: string, password: string) => {
   try {
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return userCredential.user;
   } catch (error) {
     throw error;
   }
 };
+
+// Exportando as funções e referências necessárias
 export { auth, db, signUpUser, loginUser, collection };
