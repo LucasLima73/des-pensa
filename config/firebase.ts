@@ -2,15 +2,18 @@ import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Adicionando AsyncStorage
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // Inicializando o aplicativo Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyDNF38ZXGnIEieN7pJP9PPHBQc0YlqlNiI",
-  authDomain: "des-pensa-1d38e.firebaseapp.com",
-  projectId: "des-pensa-1d38e",
-  storageBucket: "des-pensa-1d38e.appspot.com",
-  messagingSenderId: "839232965368",
-  appId: "1:839232965368:web:84c5689df4ad0a861a890d",
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
 };
 
 initializeApp(firebaseConfig);
