@@ -4,10 +4,10 @@ import {
   Text,
   TextInput,
   Button,
-  StyleSheet,
   TouchableOpacity,
 } from "react-native";
 import { signUpUser } from "../../config/firebase";
+import styles from "./styles";
 
 const SignUp = ({ navigation }: { navigation: any }) => {
   const [email, setEmail] = useState("");
@@ -54,44 +54,5 @@ const SignUp = ({ navigation }: { navigation: any }) => {
     </View>
   );
 };
-
-// Estilos
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#ffffff",
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 20,
-    color: "#333333",
-  },
-  input: {
-    width: "80%",
-    height: 40,
-    borderColor: "#cccccc",
-    borderWidth: 1,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    fontSize: 16,
-    color: "#333333",
-  },
-  error: {
-    color: "red",
-    marginBottom: 10,
-  },
-  signInLink: {
-    marginTop: 20,
-  },
-  signInLinkText: {
-    color: "#007bff",
-    fontSize: 16,
-    textDecorationLine: "underline",
-  },
-});
 
 export default SignUp;

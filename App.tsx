@@ -1,7 +1,7 @@
 import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { AuthProvider } from "./config/AuthProvider"
+import { AuthProvider } from "./config/AuthProvider";
 import OnboardingScreen from "./screens/Onboarding";
 import Login from "./screens/Login/SignIn";
 import SignUp from "./screens/Login/SignUp";
@@ -19,7 +19,7 @@ function Tabs() {
   return (
     <Tabs.Navigator>
       <Tabs.Screen
-        name="Home"
+        name="Des-pensa"
         component={MainScreen}
         options={{
           tabBarIcon: ({ color, size }) => (

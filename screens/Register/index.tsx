@@ -8,6 +8,7 @@ import {
 } from "react-native"; // Importando Button
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import styles from "./styles"; // Importe os estilos
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -119,23 +120,3 @@ export default function Register() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  input: {
-    height: 40,
-    width: "100%",
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-  },
-  buttonContainer: {
-    width: "100%",
-  },
-});

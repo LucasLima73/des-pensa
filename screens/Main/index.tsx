@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   Image,
   ActivityIndicator,
@@ -15,6 +14,7 @@ import { getFirestore, collection, getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { launchCameraAsync, MediaTypeOptions } from "expo-image-picker";
 import { ImagePickerResult } from "expo-image-picker/build/ImagePicker.types";
+import styles from "./styles";
 
 const ProductItem = ({
   product,
@@ -154,68 +154,5 @@ const MainScreen = ({ navigation }: { navigation: any }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    alignItems: "center",
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  scrollView: {
-    width: "100%",
-  },
-  productItem: {
-    alignItems: "center",
-    marginBottom: 20,
-    borderWidth: 2,
-    borderColor: "transparent",
-    borderRadius: 10,
-    padding: 10,
-    position: "relative",
-  },
-  productImage: {
-    width: 100,
-    height: 100,
-    marginBottom: 10,
-    borderRadius: 50,
-  },
-  productName: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  expiryText: {
-    fontSize: 14,
-    color: "#888",
-  },
-  emailText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  spinner: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  quantityText: {
-    position: "relative",
-    top: -30,
-    left: 35,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    color: "#fff",
-    borderRadius: 50,
-    padding: 5,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});
 
 export default MainScreen;
