@@ -7,11 +7,13 @@ https://nodejs.org/en
 Obtenha o Visual Studio Code
 https://code.visualstudio.com/
 
+crie um arquivo na raiz do projeto como ".env" e adicione as configurações de ambiente do firebase
+
 Após configurado, entre na raiz do projeto e rode o comando: 
 
 npm install para instalar as dependencias
 
-npx start para iniciar 
+npm start para iniciar 
 
 Faça a leitura do QRcode para abrir o App no seu celular, baixando o App expo.
 
