@@ -29,7 +29,6 @@
     "jest-expo": "~50.0.4",
     "react": "18.2.0",
     "react-native": "0.73.4",
-    "react-native-config": "^1.5.1",
     "react-native-image-picker": "^7.1.2",
     "react-native-onboarding-swiper": "^1.2.0",
     "react-native-paper": "^5.12.3",

@@ -1,7 +1,12 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Adicionando AsyncStorage
+<<<<<<< HEAD
 import Config from "react-native-config";
 
 
@@ -13,6 +18,16 @@ const firebaseConfig = {
   storageBucket: Config.FIREBASE_STORAGE_BUCKET,
   messagingSenderId: Config.FIREBASE_MESSAGING_SENDER_ID,
   appId: Config.FIREBASE_APP_ID,
+=======
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDNF38ZXGnIEieN7pJP9PPHBQc0YlqlNiI",
+  authDomain: "des-pensa-1d38e.firebaseapp.com",
+  projectId: "des-pensa-1d38e",
+  storageBucket: "des-pensa-1d38e.appspot.com",
+  messagingSenderId: "839232965368",
+  appId: "1:839232965368:web:84c5689df4ad0a861a890d",
+>>>>>>> refs/remotes/origin/feature/provider-and-database
 };
 
 initializeApp(firebaseConfig);
@@ -23,7 +38,11 @@ const auth = getAuth();
 // Função para cadastro de usuário
 const signUpUser = async (email: string, password: string, name: string) => {
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
 
     // Salvar o nome no banco de dados
     await addDoc(collection(db, "users"), {
@@ -40,7 +59,11 @@ const signUpUser = async (email: string, password: string, name: string) => {
 // Função para login de usuário
 const loginUser = async (email: string, password: string) => {
   try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
     return userCredential.user;
   } catch (error) {
     throw error;
