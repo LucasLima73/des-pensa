@@ -15,7 +15,7 @@ export const ForgotPasswordScreen = ({ navigation }) => {
 
     sendPasswordResetEmail(auth, email)
       .then(() => {
-        console.log("Success: Password Reset Email sent.");
+        console.log("Sucesso: E-mail de redefinição de senha enviado.");
         navigation.navigate("Login");
       })
       .catch((error) => setErrorState(error.message));
@@ -24,7 +24,7 @@ export const ForgotPasswordScreen = ({ navigation }) => {
   return (
     <View isSafe style={styles.container}>
       <View style={styles.innerContainer}>
-        <Text style={styles.screenTitle}>Reset your password</Text>
+        <Text style={styles.screenTitle}>Crie uma nova senha</Text>
       </View>
       <Formik
         initialValues={{ email: "" }}
@@ -44,7 +44,7 @@ export const ForgotPasswordScreen = ({ navigation }) => {
             <TextInput
               name="email"
               leftIconName="email"
-              placeholder="Enter email"
+              placeholder="Email"
               autoCapitalize="none"
               keyboardType="email-address"
               textContentType="emailAddress"
@@ -59,7 +59,7 @@ export const ForgotPasswordScreen = ({ navigation }) => {
             ) : null}
             {/* Password Reset Send Email  button */}
             <Button style={styles.button} onPress={handleSubmit}>
-              <Text style={styles.buttonText}>Send Reset Email</Text>
+              <Text style={styles.buttonText}>Enviar</Text>
             </Button>
           </>
         )}
@@ -68,7 +68,7 @@ export const ForgotPasswordScreen = ({ navigation }) => {
       <Button
         style={styles.borderlessButtonContainer}
         borderless
-        title={"Go back to Login"}
+        title={"Já possiu conta? entre aqui"}
         onPress={() => navigation.navigate("Login")}
       />
     </View>

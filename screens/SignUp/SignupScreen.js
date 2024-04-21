@@ -14,6 +14,7 @@ import {
 import { Images, Colors, auth } from "../../config";
 import { useTogglePasswordVisibility } from "../../hooks";
 import { signupValidationSchema } from "../../utils";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 
 export const SignupScreen = ({ navigation }) => {
   const [errorState, setErrorState] = useState("");
@@ -28,24 +29,36 @@ export const SignupScreen = ({ navigation }) => {
   } = useTogglePasswordVisibility();
 
   const handleSignup = async (values) => {
-    const { email, password } = values;
+    const { email, password, name } = values;
 
-    createUserWithEmailAndPassword(auth, email, password).catch((error) =>
-      setErrorState(error.message)
-    );
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      const firestore = getFirestore();
+      const userRef = doc(firestore, `users/${user.uid}`);
+      await setDoc(userRef, { name }, { merge: true });
+
+      setErrorState(""); // Clear any previous errors
+    } catch (error) {
+      setErrorState(error.message);
+    }
   };
 
   return (
     <View isSafe style={styles.container}>
       <KeyboardAwareScrollView enableOnAndroid={true}>
-        {/* LogoContainer: consist app logo and screen title */}
         <View style={styles.logoContainer}>
           <Logo uri={Images.logo} />
-          <Text style={styles.screenTitle}>Create a new account!</Text>
+          <Text style={styles.screenTitle}>Crie uma nova conta</Text>
         </View>
-        {/* Formik Wrapper */}
         <Formik
           initialValues={{
+            name: "",
             email: "",
             password: "",
             confirmPassword: "",
@@ -62,15 +75,24 @@ export const SignupScreen = ({ navigation }) => {
             handleBlur,
           }) => (
             <>
-              {/* Input fields */}
+              <TextInput
+                name="name"
+                leftIconName="account"
+                placeholder="Nome"
+                autoCapitalize="words"
+                autoFocus={true}
+                value={values.name}
+                onChangeText={handleChange("name")}
+                onBlur={handleBlur("name")}
+              />
+              <FormErrorMessage error={errors.name} visible={touched.name} />
               <TextInput
                 name="email"
                 leftIconName="email"
-                placeholder="Enter email"
+                placeholder="Email"
                 autoCapitalize="none"
                 keyboardType="email-address"
                 textContentType="emailAddress"
-                autoFocus={true}
                 value={values.email}
                 onChangeText={handleChange("email")}
                 onBlur={handleBlur("email")}
@@ -79,7 +101,7 @@ export const SignupScreen = ({ navigation }) => {
               <TextInput
                 name="password"
                 leftIconName="key-variant"
-                placeholder="Enter password"
+                placeholder="Senha"
                 autoCapitalize="none"
                 autoCorrect={false}
                 secureTextEntry={passwordVisibility}
@@ -97,7 +119,7 @@ export const SignupScreen = ({ navigation }) => {
               <TextInput
                 name="confirmPassword"
                 leftIconName="key-variant"
-                placeholder="Enter password"
+                placeholder="Confirmação de senha"
                 autoCapitalize="none"
                 autoCorrect={false}
                 secureTextEntry={confirmPasswordVisibility}
@@ -112,22 +134,19 @@ export const SignupScreen = ({ navigation }) => {
                 error={errors.confirmPassword}
                 visible={touched.confirmPassword}
               />
-              {/* Display Screen Error Messages */}
               {errorState !== "" ? (
                 <FormErrorMessage error={errorState} visible={true} />
               ) : null}
-              {/* Signup button */}
               <Button style={styles.button} onPress={handleSubmit}>
-                <Text style={styles.buttonText}>Signup</Text>
+                <Text style={styles.buttonText}>Criar conta</Text>
               </Button>
             </>
           )}
         </Formik>
-        {/* Button to navigate to Login screen */}
         <Button
           style={styles.borderlessButtonContainer}
           borderless
-          title={"Already have an account?"}
+          title={"Já possui uma conta? Clique aqui!"}
           onPress={() => navigation.navigate("Login")}
         />
       </KeyboardAwareScrollView>

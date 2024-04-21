@@ -10,25 +10,9 @@ import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import styles from "./styles"; // Importe os estilos
 
-export const convertFormattedToDate = (formattedDate) => {
-  const parts = formattedDate.split("/");
-  if (parts.length !== 3) {
-    return null; // Formato inválido
-  }
-
-  const day = parseInt(parts[0], 10);
-  const month = parseInt(parts[1], 10); // Não subtrai 1 do mês
-  const year = parseInt(parts[2], 10);
-
-  // Formata a data como "YYYY-MM-DD"
-  return `${year}-${month.toString().padStart(2, "0")}-${day
-    .toString()
-    .padStart(2, "0")}`;
-};
-
 export default function Register() {
   const [name, setName] = useState("");
-  const [expiryDate, setExpiryDate] = useState(""); // Start with empty string
+  const [expiryDate, setExpiryDate] = useState("");
   const [quantity, setQuantity] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -39,31 +23,24 @@ export default function Register() {
       const firestore = getFirestore();
       const foodCollection = collection(firestore, `users/${user.uid}/foods`);
 
-      // Convert formatted expiryDate to a valid Date object before saving
-      const formattedDate = convertFormattedToDate(expiryDate);
-      if (!formattedDate) {
-        console.warn(
-          "Formato de data de validade inválido. Use o formato DD/MM/YYYY."
-        );
-        setLoading(false); // Stop loading if date is invalid
-        return;
-      }
+      // Salve a data de validade como uma string formatada
+      const formattedDate = expiryDate; // Não precisa converter, já está no formato desejado
 
       addDoc(foodCollection, {
         name: name,
-        expiryDate: formattedDate, // Use converted Date object
+        expiryDate: formattedDate, // Salve como string formatada
         quantity: quantity,
         image:
-          "https://img.freepik.com/vetores-gratis/saco-de-papel-de-transportadora-de-supermercado-com-alimentos_1284-35997.jpg", // Image URL
+          "https://img.freepik.com/vetores-gratis/saco-de-papel-de-transportadora-de-supermercado-com-alimentos_1284-35997.jpg", // URL da imagem
       })
         .then(() => {
-          console.log("Food item added!");
+          console.log("Item de comida adicionado!");
           setName("");
-          setExpiryDate(""); // Clear expiryDate
+          setExpiryDate("");
           setQuantity("");
         })
         .catch((error) => {
-          console.error("Error adding food item: ", error);
+          console.error("Erro ao adicionar item de comida: ", error);
         })
         .finally(() => {
           setLoading(false);
@@ -71,7 +48,7 @@ export default function Register() {
     }
   };
 
-  // Function to handle user input with mask
+  // Função para lidar com a entrada do usuário com máscara
   const handleExpiryDateChange = (text) => {
     const formatted = text
       .replace(/\D/g, "") // Remove todos os caracteres que não são dígitos
@@ -94,9 +71,9 @@ export default function Register() {
         style={styles.input}
         placeholder="Expiry Date (DD/MM/YYYY)"
         value={expiryDate}
-        onChangeText={handleExpiryDateChange} // Use custom handler
-        keyboardType="numeric" // Keyboard for numbers
-        maxLength={10} // Maximum input length
+        onChangeText={handleExpiryDateChange}
+        keyboardType="numeric"
+        maxLength={10}
       />
       <TextInput
         style={styles.input}

@@ -3,46 +3,59 @@ import {
   View,
   Text,
   StyleSheet,
-  Button,
   ScrollView,
   TouchableOpacity,
   Image,
   ActivityIndicator,
 } from "react-native";
 import { signOut, getAuth } from "firebase/auth";
-import { collection, getDocs, getFirestore } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  getFirestore,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import styles from "./styles";
 
 import { auth } from "../../config";
-//import { EditModal } from "./EditModal"; // Você precisará importar o componente EditModal se ele estiver em um arquivo separado
+import EditModal from "../EditModal/EditModal";
 
 export const HomeScreen = ({ navigation }) => {
-  const handleLogout = () => {
-    signOut(auth).catch((error) => console.log("Error logging out: ", error));
-  };
-
+  const [userDisplayName, setUserDisplayName] = useState("");
   const user = getAuth().currentUser;
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null); // Corrigi a inicialização do estado aqui
+  const [editingProduct, setEditingProduct] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [editProductId, setEditProductId] = useState(null);
+
+  const fetchUserData = async () => {
+    if (user) {
+      const firestore = getFirestore();
+      const userDoc = await getDoc(doc(firestore, `users/${user.uid}`));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        setUserDisplayName(userData.name);
+      }
+    }
+  };
 
   const fetchProducts = async () => {
     setIsLoading(true);
     if (user) {
-      const firestore = getFirestore(); // Corrigi o nome da função aqui
+      const firestore = getFirestore();
       const querySnapshot = await getDocs(
         collection(firestore, `users/${user.uid}/foods`)
       );
       const productsData = querySnapshot.docs.map((doc) => {
         const data = doc.data();
-        const expiryDate = new Date(data.expiryDate);
         return {
           id: doc.id,
           name: data.name,
           image: data.image,
           quantity: data.quantity,
-          expiryDate: expiryDate,
+          expiryDate: data.expiryDate,
         };
       });
       setProducts(productsData);
@@ -51,6 +64,7 @@ export const HomeScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
+    fetchUserData();
     const unsubscribe = navigation.addListener("focus", () => {
       fetchProducts();
     });
@@ -60,14 +74,22 @@ export const HomeScreen = ({ navigation }) => {
 
   const handleEdit = (product) => {
     setEditingProduct(product);
+    setEditProductId(product.id);
     setIsEditModalVisible(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalVisible(false);
+    setEditProductId(null);
+  };
+
+  const handleLogout = () => {
+    signOut(auth).catch((error) => console.log("Error logging out: ", error));
   };
 
   return (
     <View style={styles.container}>
-      {user && (
-        <Text style={styles.emailText}>Bem-vindo, {user.displayName}</Text>
-      )}
+      <Text style={styles.emailText}>Bem-vindo, {userDisplayName}</Text>
       <Text style={styles.heading}>Sua Des-pensa</Text>
       {isLoading ? (
         <ActivityIndicator
@@ -89,14 +111,17 @@ export const HomeScreen = ({ navigation }) => {
                 />
                 <Text style={styles.quantityText}>{product.quantity}</Text>
                 <Text style={styles.productName}>{product.name}</Text>
-                <Text style={styles.expiryText}>
-                  {product.expiryDate.toLocaleDateString()}
-                </Text>
+                <Text style={styles.expiryText}>{product.expiryDate}</Text>
               </View>
             </TouchableOpacity>
           ))}
         </ScrollView>
       )}
+      <EditModal
+        isVisible={isEditModalVisible}
+        onClose={handleCloseEditModal}
+        productId={editProductId}
+      />
     </View>
   );
 };

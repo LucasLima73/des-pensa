@@ -4,6 +4,9 @@ import { HomeScreen } from "../screens";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons"; // Importe os ícones que você deseja usar
 import Register from "../screens/Register/Register";
+import { Market } from "../screens/Market/Market";
+import { Profile } from "../screens/Profile/Profile";
+
 
 const Tabs = createBottomTabNavigator();
 
@@ -30,7 +33,7 @@ export const AppStack = () => {
       />
       <Tabs.Screen
         name="Market"
-        component={HomeScreen}
+        component={Market}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="cart-outline" color={color} size={size} />
@@ -39,7 +42,7 @@ export const AppStack = () => {
       />
       <Tabs.Screen
         name="Profile"
-        component={HomeScreen}
+        component={Profile}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-outline" color={color} size={size} />
