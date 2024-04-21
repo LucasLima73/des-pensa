@@ -10,6 +10,22 @@ import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import styles from "./styles"; // Importe os estilos
 
+export const convertFormattedToDate = (formattedDate: string) => {
+  const parts = formattedDate.split("/");
+  if (parts.length !== 3) {
+    return null; // Formato inválido
+  }
+
+  const day = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10); // Não subtrai 1 do mês
+  const year = parseInt(parts[2], 10);
+
+  // Formata a data como "YYYY-MM-DD"
+  return `${year}-${month.toString().padStart(2, "0")}-${day
+    .toString()
+    .padStart(2, "0")}`;
+};
+
 export default function Register() {
   const [name, setName] = useState("");
   const [expiryDate, setExpiryDate] = useState(""); // Start with empty string
@@ -56,21 +72,7 @@ export default function Register() {
   };
 
   // Function to convert formatted expiryDate to a valid Date object
-  const convertFormattedToDate = (formattedDate: string) => {
-    const parts = formattedDate.split("/");
-    if (parts.length !== 3) {
-      return null; // Formato inválido
-    }
-
-    const day = parseInt(parts[0], 10);
-    const month = parseInt(parts[1], 10); // Não subtrai 1 do mês
-    const year = parseInt(parts[2], 10);
-
-    // Formata a data como "YYYY-MM-DD"
-    return `${year}-${month.toString().padStart(2, "0")}-${day
-      .toString()
-      .padStart(2, "0")}`;
-  };
+ 
 
   // Function to handle user input with mask
   const handleExpiryDateChange = (text: string) => {
