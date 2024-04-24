@@ -81,6 +81,7 @@ export const HomeScreen = ({ navigation }) => {
   const handleCloseEditModal = () => {
     setIsEditModalVisible(false);
     setEditProductId(null);
+    fetchProducts();
   };
 
   const handleLogout = () => {

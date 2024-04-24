@@ -63,13 +63,13 @@ export default function Register() {
     <View style={styles.container}>
       <TextInput
         style={styles.input}
-        placeholder="Name"
+        placeholder="Nome do produto"
         value={name}
         onChangeText={setName}
       />
       <TextInput
         style={styles.input}
-        placeholder="Expiry Date (DD/MM/YYYY)"
+        placeholder="Data de validade"
         value={expiryDate}
         onChangeText={handleExpiryDateChange}
         keyboardType="numeric"
@@ -77,7 +77,7 @@ export default function Register() {
       />
       <TextInput
         style={styles.input}
-        placeholder="Quantity"
+        placeholder="Quantidade"
         value={quantity}
         onChangeText={setQuantity}
         keyboardType="numeric"
@@ -87,7 +87,7 @@ export default function Register() {
           <ActivityIndicator size="large" color="#841584" />
         ) : (
           <Button
-            title="Add Food Item"
+            title="Adicionar produto"
             onPress={handleRegister}
             color="#841584"
           />

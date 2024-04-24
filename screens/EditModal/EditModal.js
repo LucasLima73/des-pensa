@@ -51,15 +51,14 @@ export default EditModal = ({ isVisible, onClose, productId }) => {
     };
 
     const fetchUserName = async () => {
-      const firestore = getFirestore();
-      const q = query(
-        collection(firestore, "users"),
-        where("uid", "==", user.uid)
-      );
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) => {
-        setUserName(doc.data().name);
-      });
+      if (user) {
+        const firestore = getFirestore();
+        const userDoc = await getDoc(doc(firestore, `users/${user.uid}`));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setUserName(userData.name);
+        }
+      }
     };
 
     if (isVisible && productId) {
@@ -96,7 +95,7 @@ export default EditModal = ({ isVisible, onClose, productId }) => {
 
     await addDoc(productRef, {
       sell: true,
-      soldBy: userName,
+      soldBy: userName, // Corrigido para utilizar o userName
       sellerId: user.uid,
       quantitySold: parseInt(quantity),
       nameSold: name,
