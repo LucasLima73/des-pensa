@@ -23,8 +23,10 @@ import {
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { TextInputMask } from "react-native-masked-text";
+import { useNavigation } from "@react-navigation/native";
+import { SellModal } from "../SellModal/SellModal";
 
-export default EditModal = ({ isVisible, onClose, productId }) => {
+const EditModal = ({ isVisible, onClose, productId }) => {
   const [product, setProduct] = useState(null);
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState("");
@@ -32,7 +34,9 @@ export default EditModal = ({ isVisible, onClose, productId }) => {
   const [temporaryExpiryDate, setTemporaryExpiryDate] = useState("");
   const [image, setImage] = useState("");
   const [userName, setUserName] = useState("");
+  const [isSellModalVisible, setIsSellModalVisible] = useState(false);
   const user = getAuth().currentUser;
+  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -90,18 +94,7 @@ export default EditModal = ({ isVisible, onClose, productId }) => {
   };
 
   const handleSell = async () => {
-    const firestore = getFirestore();
-    const productRef = collection(firestore, `sell`);
-
-    await addDoc(productRef, {
-      sell: true,
-      soldBy: userName, // Corrigido para utilizar o userName
-      sellerId: user.uid,
-      quantitySold: parseInt(quantity),
-      nameSold: name,
-      expiryDateSold: temporaryExpiryDate,
-    });
-    onClose();
+    setIsSellModalVisible(true);
   };
 
   return (
@@ -150,6 +143,10 @@ export default EditModal = ({ isVisible, onClose, productId }) => {
             </TouchableOpacity>
           </>
         )}
+        <SellModal
+          isVisible={isSellModalVisible}
+          onClose={() => setIsSellModalVisible(false)}
+        />
       </View>
     </Modal>
   );
@@ -198,3 +195,5 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
 });
+
+export default EditModal;

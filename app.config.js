@@ -2,11 +2,11 @@ import "dotenv/config";
 
 export default {
   expo: {
-    name: "Expo Firebase Starter",
-    slug: "expo-firebase",
+    name: "Des-pensa",
+    slug: "Des-pensa",
     privacy: "public",
     platforms: ["ios", "android"],
-    version: "0.19.0",
+    version: "0.0.1",
     orientation: "portrait",
     icon: "./assets/flame.png",
     splash: {
