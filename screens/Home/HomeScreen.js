@@ -17,7 +17,6 @@ import {
   getDoc,
 } from "firebase/firestore";
 import styles from "./styles";
-
 import { auth } from "../../config";
 import EditModal from "../EditModal/EditModal";
 
@@ -50,12 +49,33 @@ export const HomeScreen = ({ navigation }) => {
       );
       const productsData = querySnapshot.docs.map((doc) => {
         const data = doc.data();
+        const expiryDateString = data.expiryDate; // Assume expiryDate is a string in DD/MM/YYYY format
+
+        // Trate o erro caso a string de data esteja inválida
+        let daysRemaining = 0;
+        try {
+          const expiryDateParts = expiryDateString.split("/"); // Tente dividir a string
+          const expiryDate = new Date(
+            parseInt(expiryDateParts[2]), // Ano
+            parseInt(expiryDateParts[1]) - 1, // Mês (zero-based)
+            parseInt(expiryDateParts[0]) // Dia
+          );
+          const today = new Date();
+          const timeDifference = expiryDate.getTime() - today.getTime();
+          daysRemaining = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+        } catch (error) {
+          console.error("Erro ao processar data de validade:", error);
+        }
+
+        daysRemaining = daysRemaining >= 0 ? daysRemaining : 0; // Garanta valor não negativo
+
         return {
           id: doc.id,
           name: data.name,
           image: data.image,
           quantity: data.quantity,
           expiryDate: data.expiryDate,
+          daysRemaining: daysRemaining, // Adicione a propriedade daysRemaining
         };
       });
       setProducts(productsData);
@@ -68,7 +88,6 @@ export const HomeScreen = ({ navigation }) => {
     const unsubscribe = navigation.addListener("focus", () => {
       fetchProducts();
     });
-
     return unsubscribe;
   }, [navigation]);
 
@@ -81,7 +100,7 @@ export const HomeScreen = ({ navigation }) => {
   const handleCloseEditModal = () => {
     setIsEditModalVisible(false);
     setEditProductId(null);
-    fetchProducts();
+    fetchProducts(); // Refresh products after edit
   };
 
   const handleLogout = () => {
@@ -112,7 +131,11 @@ export const HomeScreen = ({ navigation }) => {
                 />
                 <Text style={styles.quantityText}>{product.quantity}</Text>
                 <Text style={styles.productName}>{product.name}</Text>
-                <Text style={styles.expiryText}>{product.expiryDate}</Text>
+                <Text style={styles.expiryText}>
+                  {product.daysRemaining > 7
+                    ? `${product.daysRemaining} dia(s) restante(s)`
+                    : "Expirado"}
+                </Text>
               </View>
             </TouchableOpacity>
           ))}
