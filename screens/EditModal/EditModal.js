@@ -15,15 +15,8 @@ import {
   updateDoc,
   getFirestore,
   deleteDoc,
-  addDoc,
-  collection,
-  getDocs,
-  query,
-  where,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { TextInputMask } from "react-native-masked-text";
-import { useNavigation } from "@react-navigation/native";
 import { SellModal } from "../SellModal/SellModal";
 
 const EditModal = ({ isVisible, onClose, productId }) => {
@@ -36,7 +29,6 @@ const EditModal = ({ isVisible, onClose, productId }) => {
   const [userName, setUserName] = useState("");
   const [isSellModalVisible, setIsSellModalVisible] = useState(false);
   const user = getAuth().currentUser;
-  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -54,22 +46,9 @@ const EditModal = ({ isVisible, onClose, productId }) => {
       }
     };
 
-    const fetchUserName = async () => {
-      if (user) {
-        const firestore = getFirestore();
-        const userDoc = await getDoc(doc(firestore, `users/${user.uid}`));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          setUserName(userData.name);
-        }
-      }
-    };
-
     if (isVisible && productId) {
       fetchProduct();
     }
-
-    fetchUserName();
   }, [isVisible, productId]);
 
   const handleSave = async () => {
@@ -121,12 +100,8 @@ const EditModal = ({ isVisible, onClose, productId }) => {
               onChangeText={setQuantity}
               keyboardType="numeric"
             />
-            <TextInputMask
+            <TextInput
               style={styles.input}
-              type={"datetime"}
-              options={{
-                format: "DD/MM/YYYY",
-              }}
               placeholder="Data de Vencimento"
               value={temporaryExpiryDate}
               onChangeText={(text) => setTemporaryExpiryDate(text)}
@@ -146,6 +121,9 @@ const EditModal = ({ isVisible, onClose, productId }) => {
         <SellModal
           isVisible={isSellModalVisible}
           onClose={() => setIsSellModalVisible(false)}
+          productName={name}
+          productQuantity={quantity}
+          productId={productId}
         />
       </View>
     </Modal>
