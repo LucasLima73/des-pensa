@@ -15,16 +15,11 @@ import {
   updateDoc,
   getFirestore,
   deleteDoc,
-  addDoc,
-  collection,
-  getDocs,
-  query,
-  where,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { TextInputMask } from "react-native-masked-text";
+import { SellModal } from "../SellModal/SellModal";
 
-export default EditModal = ({ isVisible, onClose, productId }) => {
+const EditModal = ({ isVisible, onClose, productId }) => {
   const [product, setProduct] = useState(null);
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState("");
@@ -32,6 +27,7 @@ export default EditModal = ({ isVisible, onClose, productId }) => {
   const [temporaryExpiryDate, setTemporaryExpiryDate] = useState("");
   const [image, setImage] = useState("");
   const [userName, setUserName] = useState("");
+  const [isSellModalVisible, setIsSellModalVisible] = useState(false);
   const user = getAuth().currentUser;
 
   useEffect(() => {
@@ -50,22 +46,9 @@ export default EditModal = ({ isVisible, onClose, productId }) => {
       }
     };
 
-    const fetchUserName = async () => {
-      if (user) {
-        const firestore = getFirestore();
-        const userDoc = await getDoc(doc(firestore, `users/${user.uid}`));
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          setUserName(userData.name);
-        }
-      }
-    };
-
     if (isVisible && productId) {
       fetchProduct();
     }
-
-    fetchUserName();
   }, [isVisible, productId]);
 
   const handleSave = async () => {
@@ -90,18 +73,7 @@ export default EditModal = ({ isVisible, onClose, productId }) => {
   };
 
   const handleSell = async () => {
-    const firestore = getFirestore();
-    const productRef = collection(firestore, `sell`);
-
-    await addDoc(productRef, {
-      sell: true,
-      soldBy: userName, // Corrigido para utilizar o userName
-      sellerId: user.uid,
-      quantitySold: parseInt(quantity),
-      nameSold: name,
-      expiryDateSold: temporaryExpiryDate,
-    });
-    onClose();
+    setIsSellModalVisible(true);
   };
 
   return (
@@ -128,12 +100,8 @@ export default EditModal = ({ isVisible, onClose, productId }) => {
               onChangeText={setQuantity}
               keyboardType="numeric"
             />
-            <TextInputMask
+            <TextInput
               style={styles.input}
-              type={"datetime"}
-              options={{
-                format: "DD/MM/YYYY",
-              }}
               placeholder="Data de Vencimento"
               value={temporaryExpiryDate}
               onChangeText={(text) => setTemporaryExpiryDate(text)}
@@ -150,6 +118,13 @@ export default EditModal = ({ isVisible, onClose, productId }) => {
             </TouchableOpacity>
           </>
         )}
+        <SellModal
+          isVisible={isSellModalVisible}
+          onClose={() => setIsSellModalVisible(false)}
+          productName={name}
+          productQuantity={quantity}
+          productId={productId}
+        />
       </View>
     </Modal>
   );
@@ -198,3 +173,5 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
 });
+
+export default EditModal;

@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   TouchableOpacity,
   Image,
+  TextInput,
   ActivityIndicator,
 } from "react-native";
 import { signOut, getAuth } from "firebase/auth";
@@ -17,7 +17,6 @@ import {
   getDoc,
 } from "firebase/firestore";
 import styles from "./styles";
-
 import { auth } from "../../config";
 import EditModal from "../EditModal/EditModal";
 
@@ -29,6 +28,7 @@ export const HomeScreen = ({ navigation }) => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editProductId, setEditProductId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState(""); // Estado para armazenar o termo de pesquisa
 
   const fetchUserData = async () => {
     if (user) {
@@ -50,12 +50,32 @@ export const HomeScreen = ({ navigation }) => {
       );
       const productsData = querySnapshot.docs.map((doc) => {
         const data = doc.data();
+        const expiryDateString = data.expiryDate;
+
+        let daysRemaining = 0;
+        try {
+          const expiryDateParts = expiryDateString.split("/");
+          const expiryDate = new Date(
+            parseInt(expiryDateParts[2]),
+            parseInt(expiryDateParts[1]) - 1,
+            parseInt(expiryDateParts[0])
+          );
+          const today = new Date();
+          const timeDifference = expiryDate.getTime() - today.getTime();
+          daysRemaining = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+        } catch (error) {
+          console.error("Erro ao processar data de validade:", error);
+        }
+
+        daysRemaining = daysRemaining >= 0 ? daysRemaining : 0;
+
         return {
           id: doc.id,
           name: data.name,
           image: data.image,
           quantity: data.quantity,
           expiryDate: data.expiryDate,
+          daysRemaining: daysRemaining,
         };
       });
       setProducts(productsData);
@@ -68,7 +88,6 @@ export const HomeScreen = ({ navigation }) => {
     const unsubscribe = navigation.addListener("focus", () => {
       fetchProducts();
     });
-
     return unsubscribe;
   }, [navigation]);
 
@@ -88,10 +107,25 @@ export const HomeScreen = ({ navigation }) => {
     signOut(auth).catch((error) => console.log("Error logging out: ", error));
   };
 
+  // Função para filtrar os produtos com base no termo de pesquisa
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <View style={styles.container}>
       <Text style={styles.emailText}>Bem-vindo, {userDisplayName}</Text>
       <Text style={styles.heading}>Sua Des-pensa</Text>
+      {/* Campo de entrada de texto para pesquisa */}
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Pesquisar produto..." // Placeholder adicionado aqui
+          placeholderTextColor="#A9A9A9" // Definindo a cor do placeholder
+          value={searchTerm}
+          onChangeText={(text) => setSearchTerm(text)}
+        />
+      </View>
       {isLoading ? (
         <ActivityIndicator
           size="large"
@@ -100,7 +134,7 @@ export const HomeScreen = ({ navigation }) => {
         />
       ) : (
         <ScrollView style={styles.scrollView}>
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <TouchableOpacity
               key={product.id}
               onPress={() => handleEdit(product)}
@@ -112,7 +146,11 @@ export const HomeScreen = ({ navigation }) => {
                 />
                 <Text style={styles.quantityText}>{product.quantity}</Text>
                 <Text style={styles.productName}>{product.name}</Text>
-                <Text style={styles.expiryText}>{product.expiryDate}</Text>
+                <Text style={styles.expiryText}>
+                  {product.daysRemaining > 7
+                    ? `${product.daysRemaining} dia(s) restante(s)`
+                    : "Expirado"}
+                </Text>
               </View>
             </TouchableOpacity>
           ))}
