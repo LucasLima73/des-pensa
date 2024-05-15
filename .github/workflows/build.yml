@@ -1,0 +1,26 @@
+name: Build APK
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build APK
+        run: expo build:android --non-interactive
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-release
+          path: ./android/app/build/outputs/apk/release/app-release.apk
