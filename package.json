@@ -16,6 +16,7 @@
     "dotenv": "^10.0.0",
     "expo": "~50.0.14",
     "expo-constants": "~15.4.5",
+    "expo-updates": "^0.24.12",
     "firebase": "^10.5.2",
     "formik": "2.1.4",
     "react": "18.2.0",
