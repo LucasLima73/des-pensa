@@ -1,28 +1,42 @@
 {
   "expo": {
-    "name": "des-pensa",
-    "slug": "des-pensa",
-    "version": "1.0.0",
+    "name": "Des-pensa",
+    "slug": "Des-pensa",
+    "privacy": "public",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "version": "0.0.1",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "icon": "./assets/flame.png",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "##E0BBE4"
+      "resizeMode": "cover",
+      "backgroundColor": "#F57C00"
     },
-    "assetBundlePatterns": ["**/*"],
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+    "extra": {
+      "apiKey": "${API_KEY}",
+      "authDomain": "${AUTH_DOMAIN}",
+      "projectId": "${PROJECT_ID}",
+      "storageBucket": "${STORAGE_BUCKET}",
+      "messagingSenderId": "${MESSAGING_SENDER_ID}",
+      "appId": "${APP_ID}",
+      "eas": {
+        "projectId": "746821ce-ecf5-4ec0-977d-80a39231b401"
       }
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
+    "android": {
+      "package": "com.lucasdespensa.Despensa"
     }
   }
 }
