@@ -1,26 +1,30 @@
-name: Build APK
+name: Expo Build Workflow
 
 on:
   push:
     branches:
-      - main
+      - main  # Defina a branch que você deseja acionar o workflow
 
 jobs:
-  build:
+  expo_build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build APK
-        run: expo build:android --non-interactive
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
         with:
-          name: app-release
-          path: ./android/app/build/outputs/apk/release/app-release.apk
+          node-version: '14'
+
+      - name: Install Expo CLI
+        run: npm install -g expo-cli
+
+      - name: Log in to Expo
+        run: expo login -u lucaslimabaseo@gmail.com -p Rammstein123@#
+
+      - name: Build for Expo
+        run: |
+          eas build --platform android --profile preview
+
