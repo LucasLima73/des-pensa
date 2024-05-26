@@ -14,7 +14,7 @@
     "@react-navigation/native": "^6.1.16",
     "@react-navigation/stack": "^6.3.28",
     "dotenv": "^10.0.0",
-    "expo": "~50.0.14",
+    "expo": "~51.0.0",
     "expo-constants": "~15.4.5",
     "firebase": "^10.5.2",
     "formik": "2.1.4",
