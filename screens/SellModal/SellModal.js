@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   Keyboard,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // Importe o ícone do Ionicons
-import { getFirestore, collection, addDoc } from "firebase/firestore"; // Import necessary Firestore functions
+import { getFirestore, collection, addDoc, doc , getDoc} from "firebase/firestore"; // Import necessary Firestore functions
 import { getAuth } from "firebase/auth"; // Import the auth function
 
 export const SellModal = ({
@@ -28,6 +28,29 @@ export const SellModal = ({
   const [finalValue, setFinalValue] = useState("");
   const [currentRemainingQuantity, setCurrentRemainingQuantity] =
     useState(currentQuantity);
+  const [bairros, setBairros] = useState({}); // Alteração do nome do estado para "bairros" e inicialização como um objeto vazio
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const user = getAuth().currentUser;
+      if (user) {
+        const firestore = getFirestore();
+        const userRef = doc(firestore, "users", user.uid); // Obtenha a referência do documento do usuário
+        const userData = await getDoc(userRef); // Obtenha os dados do documento do usuário
+        if (userData.exists()) {
+          const userDataObj = userData.data();
+          setBairros(userDataObj.bairro); // Defina o estado "bairros" com os bairros do usuário
+          console.log("Bairros do usuário:", userDataObj.bairro); // Adicione este log para verificar os bairros
+        } else {
+          console.log("Dados do usuário não encontrados.");
+        }
+      } else {
+        console.log("Usuário não autenticado.");
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const handleCalculateFinalValue = () => {
     if (parseFloat(productValue) && parseFloat(quantity)) {
@@ -99,6 +122,7 @@ export const SellModal = ({
       finalValue: parseFloat(finalValue),
       userId: user.uid,
       expiryDate,
+      bairros, // Adicionando o bairro aos dados da venda
       timestamp: new Date(),
     };
 

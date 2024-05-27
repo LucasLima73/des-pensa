@@ -23,6 +23,15 @@ export default StyleSheet.create({
     padding: 10,
     position: "relative",
   },
+  filterInput: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
+    width: "90%",
+    backgroundColor: "#fff",
+  },
   productImage: {
     width: 100,
     height: 100,

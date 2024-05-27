@@ -117,7 +117,7 @@ export const HomeScreen = ({ navigation }) => {
       <Text style={styles.heading}>Sua Des-pensa</Text>
       <View style={styles.searchContainer}>
         <TextInput
-          style={styles.searchInput}
+          style={styles.filterInput}
           placeholder="Pesquisar produto..."
           placeholderTextColor="#A9A9A9"
           value={searchTerm}

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View, StyleSheet } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons"; // Importe os ícones que você deseja usar
@@ -7,7 +7,6 @@ import { HomeScreen } from "../screens";
 import Register from "../screens/Register/Register";
 import { Market } from "../screens/Market/Market";
 import { Profile } from "../screens/Profile/Profile";
-import { SellModal } from "../screens/SellModal/SellModal";
 import { Notification } from "../screens/Notification/Notification";
 import Chat from "../screens/Chat/Chat";
 import ChatList from "../screens/Chat/ChatList";
@@ -37,6 +36,7 @@ const HomeStack = () => {
           ),
         })}
       />
+       <Stack.Screen name="Notification" component={Notification} />
       <Stack.Screen name="Chats" component={Chat} />
       <Stack.Screen name="Chatlist" component={Chat} />
     </Stack.Navigator>
@@ -56,21 +56,24 @@ export const AppStack = () => {
           headerShown: false,
         }}
       />
-      <Tabs.Screen
-        name="Adicionar"
-        component={Register}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="add-circle-outline" color={color} size={size} />
-          ),
-        }}
-      />
+     
       <Tabs.Screen
         name="Mini-Mercado"
         component={Market}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="cart-outline" color={color} size={size} />
+          ),
+        }}
+      />
+       <Tabs.Screen
+        name="Adicionar"
+        component={Register}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <View style={[styles.addButton, { backgroundColor: color }]}>
+              <Ionicons name="add-circle-outline" color="#fff" size={size * 1.5} />
+            </View>
           ),
         }}
       />
@@ -84,7 +87,7 @@ export const AppStack = () => {
         }}
       />
       <Tabs.Screen
-        name="Chatlist"
+        name="Chat de vendas"
         component={ChatList}
         options={{
           tabBarIcon: ({ color, size }) => (
@@ -92,15 +95,19 @@ export const AppStack = () => {
           ),
         }}
       />
-       <Tabs.Screen
-        name="Chats"
-        component={Chat}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="chatbox" color={color} size={size} />
-          ),
-        }}
-      />
+      
     </Tabs.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  addButton: {
+    position: "absolute",
+    top: -20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});

@@ -7,8 +7,9 @@ import {
   ActivityIndicator,
   Modal,
   TouchableOpacity,
+  TextInput,
 } from "react-native";
-import { useFocusEffect, useNavigation } from "@react-navigation/native"; // Importe useNavigation
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import {
   collection,
   getFirestore,
@@ -26,7 +27,28 @@ export function Market({ navigation }) {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
   const [sellerName, setSellerName] = useState("");
+  const [userBairros, setUserBairros] = useState({});
+  const [filterBairro, setFilterBairro] = useState(""); // Estado para armazenar o filtro de bairro
+
   const user = getAuth().currentUser;
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const firestore = getFirestore();
+      const usersRef = collection(firestore, "users");
+      const usersSnapshot = await getDocs(usersRef);
+
+      const bairrosData = {};
+      usersSnapshot.forEach((userDoc) => {
+        const userData = userDoc.data();
+        bairrosData[userDoc.id] = userData.bairro || "Sem bairro";
+      });
+
+      setUserBairros(bairrosData);
+    };
+
+    fetchUserData();
+  }, []);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -39,7 +61,7 @@ export function Market({ navigation }) {
         const items = [];
 
         sellSnapshot.forEach((doc) => {
-          items.push(doc.data());
+          items.push({ ...doc.data(), id: doc.id });
         });
 
         setSellItems(items);
@@ -57,10 +79,8 @@ export function Market({ navigation }) {
 
     if (userDoc.exists()) {
       const userName = userDoc.data().name;
-      console.log("Nome do usuário:", userName);
       return userName;
     } else {
-      console.log("Nome não encontrado para o userId:", userId);
       return "Nome não encontrado";
     }
   };
@@ -75,8 +95,6 @@ export function Market({ navigation }) {
     setSelectedItem(null);
     setSellerName("");
   };
-
-  // Dentro da função handleBuyProduct em Market.js
 
   const handleBuyProduct = async () => {
     const chatData = {
@@ -94,27 +112,37 @@ export function Market({ navigation }) {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <TextInput
+        style={styles.filterInput}
+        placeholder="Filtrar por bairro..."
+        value={filterBairro}
+        onChangeText={setFilterBairro}
+      />
       {isLoading ? (
-        <ActivityIndicator
-          size="large"
-          color="#841584"
-          style={styles.spinner}
-        />
+        <ActivityIndicator size="large" color="#841584" style={styles.spinner} />
       ) : (
-        sellItems.map((item, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.itemContainer}
-            onPress={() => handleItemPress(item)}
-          >
-            <Text style={styles.itemName}>{item.productName}</Text>
-            <Text style={styles.itemDetail}>Quantidade: {item.quantity}</Text>
-            <Text style={styles.itemDetail}>Preço: {item.finalValue}</Text>
-            <Text style={styles.itemDetail}>
-              Data de Vencimento: {item.expiryDate}
-            </Text>
-          </TouchableOpacity>
-        ))
+        sellItems.map((item, index) => {
+          if (
+            userBairros[item.userId] &&
+            userBairros[item.userId].toLowerCase().includes(filterBairro.toLowerCase())
+          ) {
+            return (
+              <TouchableOpacity
+                key={index}
+                style={styles.itemContainer}
+                onPress={() => handleItemPress(item)}
+              >
+                <Text style={styles.itemName}>{item.productName}</Text>
+                <Text style={styles.itemDetail}>Quantidade: {item.quantity}</Text>
+                <Text style={styles.itemDetail}>Preço: {item.finalValue}</Text>
+                <Text style={styles.itemDetail}>Data de Vencimento: {item.expiryDate}</Text>
+                <Text style={styles.itemDetail}>Bairro: {userBairros[item.userId]}</Text>
+              </TouchableOpacity>
+            );
+          } else {
+            return null;
+          }
+        })
       )}
 
       <Modal
@@ -125,23 +153,12 @@ export function Market({ navigation }) {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalItemName}>
-              {selectedItem && selectedItem.productName}
-            </Text>
-            <Text style={styles.modalItemDetail}>
-              Quantidade: {selectedItem && selectedItem.quantity}
-            </Text>
-            <Text style={styles.modalItemDetail}>
-              Preço: {selectedItem && selectedItem.finalValue}
-            </Text>
-            <Text style={styles.modalItemDetail}>
-              Data de Vencimento: {selectedItem && selectedItem.expiryDate}
-            </Text>
+            <Text style={styles.modalItemName}>{selectedItem && selectedItem.productName}</Text>
+            <Text style={styles.modalItemDetail}>Quantidade: {selectedItem && selectedItem.quantity}</Text>
+            <Text style={styles.modalItemDetail}>Preço: {selectedItem && selectedItem.finalValue}</Text>
+            <Text style={styles.modalItemDetail}>Data de Vencimento: {selectedItem && selectedItem.expiryDate}</Text>
             <Text style={styles.modalItemDetail}>Vendedor: {sellerName}</Text>
-            <TouchableOpacity
-              style={styles.buyButton}
-              onPress={handleBuyProduct}
-            >
+            <TouchableOpacity style={styles.buyButton} onPress={handleBuyProduct}>
               <Text style={styles.buyButtonText}>Comprar Produto</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={closeModal}>
@@ -153,12 +170,25 @@ export function Market({ navigation }) {
     </ScrollView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     paddingVertical: 20,
     backgroundColor: "#f8f9fa",
+  },
+  filterContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  filterInput: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
+    width: "90%",
+    backgroundColor: "#fff",
   },
   itemContainer: {
     borderWidth: 1,
@@ -231,4 +261,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Market; // Certifique-se de exportar o componente Market
+export default Market;
