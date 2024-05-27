@@ -8,9 +8,12 @@ import {
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Alert,
+  ToastAndroid,
+  Text,
 } from "react-native";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import * as Notifications from "expo-notifications";
 import styles from "./styles"; // Importe os estilos
 
 export default function Register() {
@@ -22,13 +25,12 @@ export default function Register() {
   const [expiryDateError, setExpiryDateError] = useState(false);
   const [quantityError, setQuantityError] = useState(false);
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!name || !expiryDate || !quantity) {
-      // Se algum dos campos estiver vazio, marque-os como erro
       if (!name) setNameError(true);
       if (!expiryDate) setExpiryDateError(true);
       if (!quantity) setQuantityError(true);
-      
+
       Alert.alert("Erro", "Todos os campos devem ser preenchidos.");
       return;
     }
@@ -39,87 +41,122 @@ export default function Register() {
       const firestore = getFirestore();
       const foodCollection = collection(firestore, `users/${user.uid}/foods`);
 
-      // Salve a data de validade como uma string formatada
-      const formattedDate = expiryDate; // Não precisa converter, já está no formato desejado
+      const formattedDate = expiryDate;
 
-      addDoc(foodCollection, {
-        name: name,
-        expiryDate: formattedDate, // Salve como string formatada
-        quantity: quantity,
-        image:
-          "https://img.freepik.com/vetores-gratis/saco-de-papel-de-transportadora-de-supermercado-com-alimentos_1284-35997.jpg", // URL da imagem
-      })
-        .then(() => {
-          console.log("Item de comida adicionado!");
-          setName("");
-          setExpiryDate("");
-          setQuantity("");
-          Keyboard.dismiss(); // Fecha o teclado após a adição do item
-          Alert.alert("Sucesso", "Produto adicionado com sucesso em sua despensa!");
-        })
-        .catch((error) => {
-          console.error("Erro ao adicionar item de comida: ", error);
-          Alert.alert("Erro", "Falha ao adicionar item de comida. Tente novamente mais tarde.");
-        })
-        .finally(() => {
-          setLoading(false);
+      try {
+        await addDoc(foodCollection, {
+          name: name,
+          expiryDate: formattedDate,
+          quantity: quantity,
+          image:
+            "https://img.freepik.com/vetores-gratis/saco-de-papel-de-transportadora-de-supermercado-com-alimentos_1284-35997.jpg",
         });
+        console.log("Item de comida adicionado!");
+
+        const now = new Date();
+        const expiryDateParts = formattedDate.split("/");
+        const notificationDate = new Date(
+          parseInt(expiryDateParts[2]),
+          parseInt(expiryDateParts[1]) - 1,
+          parseInt(expiryDateParts[0])
+        );
+        notificationDate.setDate(notificationDate.getDate() - 7);
+
+        if (notificationDate > now) {
+          const trigger = { date: notificationDate };
+          const content = {
+            title: "Alerta de Validade!",
+            body: `O produto "${name}" está vencendo em breve!`,
+            data: { productId: name },
+          };
+
+          await Notifications.scheduleNotificationAsync({ content, trigger });
+          console.log("Notificação agendada para:", notificationDate);
+
+          ToastAndroid.showWithGravity(
+            `Notificação ativada para ${name}`,
+            ToastAndroid.SHORT,
+            ToastAndroid.BOTTOM
+          );
+        } else {
+          console.log("Notificação não agendada, pois a data é no passado.");
+        }
+
+        setName("");
+        setExpiryDate("");
+        setQuantity("");
+        Keyboard.dismiss();
+        Alert.alert(
+          "Sucesso",
+          "Produto adicionado com sucesso em sua despensa, e você será notificado 7 dias antes do seu vencimento!"
+        );
+      } catch (error) {
+        console.error("Erro ao adicionar item de comida: ", error);
+        Alert.alert(
+          "Erro",
+          "Falha ao adicionar item de comida. Tente novamente mais tarde."
+        );
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  // Função para lidar com a entrada do usuário com máscara
   const handleExpiryDateChange = (text) => {
     const formatted = text
-      .replace(/\D/g, "") // Remove todos os caracteres que não são dígitos
-      .replace(/(\d{2})(\d)/, "$1/$2") // Coloca uma barra depois dos primeiros dois dígitos
-      .replace(/(\d{2})(\d)/, "$1/$2") // Coloca uma barra depois dos segundos dois dígitos
-      .replace(/(\d{4})\d+?$/, "$1"); // Limita a entrada a 8 dígitos para o ano
+      .replace(/\D/g, "")
+      .replace(/(\d{2})(\d)/, "$1/$2")
+      .replace(/(\d{2})(\d)/, "$1/$2")
+      .replace(/(\d{4})\d+?$/, "$1");
 
     setExpiryDate(formatted);
-    setExpiryDateError(false); // Resetar o erro quando o usuário começar a digitar novamente
+    setExpiryDateError(false);
   };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView style={styles.container} behavior="padding">
+        <Text style={styles.instructionText}>
+          Adicione aqui seus produtos e deixe que nosso app cuide de tudo para você
+        </Text>
         <TextInput
-          style={[styles.input, nameError && styles.errorInput]} // Aplicar estilo de erro se houver erro
+          style={[styles.input, nameError && styles.errorInput]}
           placeholder="Nome do produto"
-          placeholderTextColor="#A9A9A9" // Defina a cor do texto do placeholder
+          placeholderTextColor="#A9A9A9"
           value={name}
           onChangeText={(text) => {
             setName(text);
-            setNameError(false); // Resetar o erro quando o usuário começar a digitar novamente
+            setNameError(false);
           }}
         />
         <TextInput
-          style={[styles.input, expiryDateError && styles.errorInput]} // Aplicar estilo de erro se houver erro
+          style={[styles.input, expiryDateError && styles.errorInput]}
           placeholder="Data de validade (DD/MM/AAAA)"
-          placeholderTextColor="#A9A9A9" // Defina a cor do texto do placeholder
+          placeholderTextColor="#A9A9A9"
           value={expiryDate}
           onChangeText={handleExpiryDateChange}
           keyboardType="numeric"
           maxLength={10}
         />
         <TextInput
-          style={[styles.input, quantityError && styles.errorInput]} // Aplicar estilo de erro se houver erro
+          style={[styles.input, quantityError && styles.errorInput]}
           placeholder="Quantidade"
-          placeholderTextColor="#A9A9A9" // Defina a cor do texto do placeholder
+          placeholderTextColor="#A9A9A9"
           value={quantity}
           onChangeText={(text) => {
             setQuantity(text);
-            setQuantityError(false); // Resetar o erro quando o usuário começar a digitar novamente
+            setQuantityError(false);
           }}
           keyboardType="numeric"
         />
         <View style={styles.buttonContainer}>
           {loading ? (
-            <ActivityIndicator size="large" color="#841584" />
+            <ActivityIndicator size="large" color="#ADD8E6" />
           ) : (
             <Button
               title="Adicionar produto"
               onPress={handleRegister}
-              color="#841584"
+              color="#ADD8E6"
             />
           )}
         </View>

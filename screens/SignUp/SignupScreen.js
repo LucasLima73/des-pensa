@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Text, StyleSheet } from "react-native";
 import { Formik } from "formik";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -14,7 +14,17 @@ import {
 import { Images, Colors, auth } from "../../config";
 import { useTogglePasswordVisibility } from "../../hooks";
 import { signupValidationSchema } from "../../utils";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  collection,
+  getDocs,
+  query,
+  where,
+  addDoc,
+} from "firebase/firestore";
+import axios from "axios"; // Make sure axios is installed
 
 export const SignupScreen = ({ navigation }) => {
   const [errorState, setErrorState] = useState("");
@@ -29,7 +39,7 @@ export const SignupScreen = ({ navigation }) => {
   } = useTogglePasswordVisibility();
 
   const handleSignup = async (values) => {
-    const { email, password, name } = values;
+    const { email, password, name, bairro } = values;
 
     try {
       const userCredential = await createUserWithEmailAndPassword(
@@ -40,12 +50,36 @@ export const SignupScreen = ({ navigation }) => {
       const user = userCredential.user;
 
       const firestore = getFirestore();
+
+      // Add user data to the users collection
       const userRef = doc(firestore, `users/${user.uid}`);
-      await setDoc(userRef, { name }, { merge: true });
+      await setDoc(userRef, { name, email, bairro }, { merge: true });
+
+      // Check if the bairro exists in the bairros collection
+      const bairrosCollection = collection(firestore, "bairros");
+      const q = query(bairrosCollection, where("bairro", "==", bairro));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        // If bairro doesn't exist, add it
+        await addDoc(bairrosCollection, { bairro });
+      }
 
       setErrorState(""); // Clear any previous errors
     } catch (error) {
       setErrorState(error.message);
+    }
+  };
+
+  const fetchNeighborhood = async (cep, setFieldValue) => {
+    try {
+      const response = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
+      const { bairro } = response.data;
+      setFieldValue("bairro", bairro);
+    } catch (error) {
+      setErrorState(
+        "Erro ao buscar bairro. Verifique o CEP e tente novamente."
+      );
     }
   };
 
@@ -62,6 +96,8 @@ export const SignupScreen = ({ navigation }) => {
             email: "",
             password: "",
             confirmPassword: "",
+            cep: "",
+            bairro: "",
           }}
           validationSchema={signupValidationSchema}
           onSubmit={(values) => handleSignup(values)}
@@ -73,6 +109,7 @@ export const SignupScreen = ({ navigation }) => {
             handleChange,
             handleSubmit,
             handleBlur,
+            setFieldValue,
           }) => (
             <>
               <TextInput
@@ -134,6 +171,30 @@ export const SignupScreen = ({ navigation }) => {
                 error={errors.confirmPassword}
                 visible={touched.confirmPassword}
               />
+              <TextInput
+                name="cep"
+                leftIconName="map-marker"
+                placeholder="CEP"
+                autoCapitalize="none"
+                keyboardType="numeric"
+                value={values.cep}
+                onChangeText={(text) => {
+                  handleChange("cep")(text);
+                  if (text.length === 8) {
+                    fetchNeighborhood(text, setFieldValue);
+                  }
+                }}
+                onBlur={handleBlur("cep")}
+              />
+              <FormErrorMessage error={errors.cep} visible={touched.cep} />
+              <TextInput
+                name="bairro"
+                leftIconName="home"
+                placeholder="Bairro"
+                autoCapitalize="words"
+                value={values.bairro}
+                editable={false} // Bairro field should be read-only
+              />
               {errorState !== "" ? (
                 <FormErrorMessage error={errorState} visible={true} />
               ) : null}
@@ -157,7 +218,7 @@ export const SignupScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.white,
+    backgroundColor: "#ADD8E6",
     paddingHorizontal: 12,
   },
   logoContainer: {

@@ -28,7 +28,7 @@ export const HomeScreen = ({ navigation }) => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editProductId, setEditProductId] = useState(null);
-  const [searchTerm, setSearchTerm] = useState(""); // Estado para armazenar o termo de pesquisa
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchUserData = async () => {
     if (user) {
@@ -107,7 +107,6 @@ export const HomeScreen = ({ navigation }) => {
     signOut(auth).catch((error) => console.log("Error logging out: ", error));
   };
 
-  // Função para filtrar os produtos com base no termo de pesquisa
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -116,12 +115,11 @@ export const HomeScreen = ({ navigation }) => {
     <View style={styles.container}>
       <Text style={styles.emailText}>Bem-vindo, {userDisplayName}</Text>
       <Text style={styles.heading}>Sua Des-pensa</Text>
-      {/* Campo de entrada de texto para pesquisa */}
       <View style={styles.searchContainer}>
         <TextInput
-          style={styles.searchInput}
-          placeholder="Pesquisar produto..." // Placeholder adicionado aqui
-          placeholderTextColor="#A9A9A9" // Definindo a cor do placeholder
+          style={styles.filterInput}
+          placeholder="Pesquisar produto..."
+          placeholderTextColor="#A9A9A9"
           value={searchTerm}
           onChangeText={(text) => setSearchTerm(text)}
         />
@@ -135,24 +133,25 @@ export const HomeScreen = ({ navigation }) => {
       ) : (
         <ScrollView style={styles.scrollView}>
           {filteredProducts.map((product) => (
-            <TouchableOpacity
-              key={product.id}
-              onPress={() => handleEdit(product)}
-            >
-              <View style={styles.productItem}>
-                <Image
-                  source={{ uri: product.image }}
-                  style={styles.productImage}
-                />
-                <Text style={styles.quantityText}>{product.quantity}</Text>
-                <Text style={styles.productName}>{product.name}</Text>
-                <Text style={styles.expiryText}>
-                  {product.daysRemaining > 7
-                    ? `${product.daysRemaining} dia(s) restante(s)`
-                    : "Expirado"}
-                </Text>
-              </View>
-            </TouchableOpacity>
+            <View key={product.id} style={styles.productItem}>
+              <Image
+                source={{ uri: product.image }}
+                style={styles.productImage}
+              />
+              <Text style={styles.quantityText}>{product.quantity}</Text>
+              <Text style={styles.productName}>{product.name}</Text>
+              <Text style={styles.expiryText}>
+                {product.daysRemaining > 7
+                  ? `${product.daysRemaining} dia(s) restante(s)`
+                  : "Expirado"}
+              </Text>
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => handleEdit(product)}
+              >
+                <Text style={styles.editButtonText}>Editar</Text>
+              </TouchableOpacity>
+            </View>
           ))}
         </ScrollView>
       )}

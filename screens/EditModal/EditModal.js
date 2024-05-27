@@ -83,94 +83,141 @@ const EditModal = ({ isVisible, onClose, productId }) => {
       animationType="slide"
       onRequestClose={onClose}
     >
-      <View style={styles.container}>
-        {product && (
-          <>
-            <Image source={{ uri: product.image }} style={styles.image} />
-            <TextInput
-              style={styles.input}
-              placeholder="Nome"
-              value={name}
-              onChangeText={setName}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Quantidade"
-              value={quantity}
-              onChangeText={setQuantity}
-              keyboardType="numeric"
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Data de Vencimento"
-              value={temporaryExpiryDate}
-              onChangeText={(text) => setTemporaryExpiryDate(text)}
-            />
-            <Button title="Salvar" onPress={handleSave} />
-            <TouchableOpacity onPress={handleSell}>
-              <Text style={styles.sellButton}>Vender Produto</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleDelete}>
-              <Text style={styles.deleteButton}>Apagar Produto</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={onClose}>
-              <Text style={styles.closeButton}>Fechar</Text>
-            </TouchableOpacity>
-          </>
-        )}
-        <SellModal
-          isVisible={isSellModalVisible}
-          onClose={() => setIsSellModalVisible(false)}
-          productName={name}
-          productQuantity={quantity}
-          productId={productId}
-        />
+      <View style={styles.overlay}>
+        <View style={styles.container}>
+          {product && (
+            <>
+              <Image source={{ uri: product.image }} style={styles.image} />
+              <TextInput
+                style={styles.input}
+                placeholder="Nome"
+                value={name}
+                onChangeText={setName}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Quantidade"
+                value={quantity}
+                onChangeText={setQuantity}
+                keyboardType="numeric"
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Data de Vencimento"
+                value={temporaryExpiryDate}
+                onChangeText={(text) => setTemporaryExpiryDate(text)}
+              />
+              <TouchableOpacity style={styles.button} onPress={handleSave}>
+                <Text style={styles.buttonText}>Salvar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.sellButton} onPress={handleSell}>
+                <Text style={styles.sellButtonText}>Vender Produto</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={handleDelete}
+              >
+                <Text style={styles.deleteButtonText}>Apagar Produto</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+                <Text style={styles.closeButtonText}>Fechar</Text>
+              </TouchableOpacity>
+            </>
+          )}
+          <SellModal
+            isVisible={isSellModalVisible}
+            onClose={() => setIsSellModalVisible(false)}
+            productName={name}
+            productQuantity={quantity}
+            productId={productId}
+            expiryDate={temporaryExpiryDate}
+          />
+        </View>
       </View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  overlay: {
     flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#ffff",
+  },
+  container: {
+    width: "90%",
     padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   input: {
     width: "100%",
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 5,
+    borderRadius: 8,
     padding: 10,
-    marginBottom: 10,
+    marginBottom: 15,
+    fontSize: 16,
   },
   image: {
     width: 200,
     height: 200,
+    marginBottom: 20,
+    borderRadius: 10,
+  },
+  button: {
+    backgroundColor: "#841584",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
     marginBottom: 10,
   },
-  closeButton: {
-    marginTop: 20,
+  buttonText: {
     color: "#fff",
-    backgroundColor: "#333",
-    padding: 10,
-    borderRadius: 5,
-  },
-  deleteButton: {
-    marginTop: 10,
-    color: "#fff",
-    backgroundColor: "#f00",
-    padding: 10,
-    borderRadius: 5,
+    fontSize: 16,
+    fontWeight: "bold",
   },
   sellButton: {
-    marginTop: 10,
+    backgroundColor: "#28a745",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  sellButtonText: {
     color: "#fff",
-    backgroundColor: "#0f0",
-    padding: 10,
-    borderRadius: 5,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  deleteButton: {
+    backgroundColor: "#dc3545",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  deleteButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  closeButton: {
+    backgroundColor: "#6c757d",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

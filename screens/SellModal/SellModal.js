@@ -1,14 +1,56 @@
-import React, { useState } from "react";
-import { View, Text, Modal, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  Modal,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // Importe o ícone do Ionicons
+import { getFirestore, collection, addDoc, doc , getDoc} from "firebase/firestore"; // Import necessary Firestore functions
+import { getAuth } from "firebase/auth"; // Import the auth function
 
-export const SellModal = ({ isVisible, onClose, currentQuantity, productName, productQuantity }) => {
+export const SellModal = ({
+  isVisible,
+  onClose,
+  currentQuantity,
+  productName,
+  productQuantity,
+  expiryDate,
+}) => {
   const [productValue, setProductValue] = useState("");
   const [quantity, setQuantity] = useState("");
   const [error, setError] = useState("");
   const taxRate = 0.05; // Taxa de 5%
   const [finalValue, setFinalValue] = useState("");
-  const [currentRemainingQuantity, setCurrentRemainingQuantity] = useState(currentQuantity);
+  const [currentRemainingQuantity, setCurrentRemainingQuantity] =
+    useState(currentQuantity);
+  const [bairros, setBairros] = useState({}); // Alteração do nome do estado para "bairros" e inicialização como um objeto vazio
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const user = getAuth().currentUser;
+      if (user) {
+        const firestore = getFirestore();
+        const userRef = doc(firestore, "users", user.uid); // Obtenha a referência do documento do usuário
+        const userData = await getDoc(userRef); // Obtenha os dados do documento do usuário
+        if (userData.exists()) {
+          const userDataObj = userData.data();
+          setBairros(userDataObj.bairro); // Defina o estado "bairros" com os bairros do usuário
+          console.log("Bairros do usuário:", userDataObj.bairro); // Adicione este log para verificar os bairros
+        } else {
+          console.log("Dados do usuário não encontrados.");
+        }
+      } else {
+        console.log("Usuário não autenticado.");
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const handleCalculateFinalValue = () => {
     if (parseFloat(productValue) && parseFloat(quantity)) {
@@ -18,29 +60,80 @@ export const SellModal = ({ isVisible, onClose, currentQuantity, productName, pr
       setError("");
     } else {
       setFinalValue("");
-      setError("Por favor, insira um valor válido para o produto e a quantidade.");
+      setError(
+        "Por favor, insira um valor válido para o produto e a quantidade."
+      );
     }
     Keyboard.dismiss(); // Fecha o teclado
   };
 
   const handleQuantityChange = (text) => {
     const newQuantity = text.trim() === "" ? "" : parseInt(text);
-    if (text.trim() === "" || (newQuantity !== 0 && !isNaN(newQuantity) && newQuantity <= productQuantity && newQuantity > 0)) {
-      const remainingQuantity = text.trim() === "" ? currentRemainingQuantity : productQuantity - newQuantity;
+    if (
+      text.trim() === "" ||
+      (newQuantity !== 0 &&
+        !isNaN(newQuantity) &&
+        newQuantity <= productQuantity &&
+        newQuantity > 0)
+    ) {
+      const remainingQuantity =
+        text.trim() === ""
+          ? currentRemainingQuantity
+          : productQuantity - newQuantity;
       setCurrentRemainingQuantity(remainingQuantity);
       setQuantity(text);
       setError("");
     } else if (newQuantity === 0) {
-      setError("Quantidade inválida. Por favor, insira um valor maior que zero.");
+      setError(
+        "Quantidade inválida. Por favor, insira um valor maior que zero."
+      );
     } else {
-      setError("A quantidade inserida é inválida. Por favor, insira um valor até " + productQuantity + ".");
+      setError(
+        "A quantidade inserida é inválida. Por favor, insira um valor até " +
+          productQuantity +
+          "."
+      );
     }
   };
 
-  const handlePublishSale = () => {
-    // Implemente a lógica para publicar a venda
-    console.log("Venda publicada!");
-    // Aqui você pode adicionar a lógica para publicar a venda, como enviar os dados para um servidor, por exemplo.
+  const handlePublishSale = async () => {
+    if (finalValue === "" || quantity === "" || productValue === "") {
+      setError(
+        "Por favor, preencha todos os campos e calcule o valor final antes de publicar a venda."
+      );
+      return;
+    }
+
+    const firestore = getFirestore();
+    const sellRef = collection(firestore, "sell");
+    const user = getAuth().currentUser;
+
+    if (!user) {
+      setError(
+        "Usuário não autenticado. Por favor, faça login e tente novamente."
+      );
+      return;
+    }
+
+    const saleData = {
+      productName,
+      productValue: parseFloat(productValue),
+      quantity: parseInt(quantity),
+      finalValue: parseFloat(finalValue),
+      userId: user.uid,
+      expiryDate,
+      bairros, // Adicionando o bairro aos dados da venda
+      timestamp: new Date(),
+    };
+
+    try {
+      await addDoc(sellRef, saleData);
+      console.log("Venda publicada com sucesso!");
+      handleModalClose();
+    } catch (error) {
+      console.error("Erro ao publicar a venda: ", error);
+      setError("Erro ao publicar a venda. Tente novamente.");
+    }
   };
 
   const handleModalClose = () => {
@@ -65,7 +158,10 @@ export const SellModal = ({ isVisible, onClose, currentQuantity, productName, pr
           <View style={styles.innerContainer}>
             <View style={styles.header}>
               <Text style={styles.title}>Adicionar Valor da Venda</Text>
-              <TouchableOpacity onPress={handleModalClose} style={styles.closeButton}>
+              <TouchableOpacity
+                onPress={handleModalClose}
+                style={styles.closeButton}
+              >
                 <Ionicons name="close-circle-outline" size={24} color="black" />
               </TouchableOpacity>
             </View>
@@ -74,6 +170,9 @@ export const SellModal = ({ isVisible, onClose, currentQuantity, productName, pr
             </Text>
             <Text style={styles.productQuantityText}>
               Quantidade do Produto: {productQuantity}
+            </Text>
+            <Text style={styles.expiryDateText}>
+              Data de Validade: {expiryDate}
             </Text>
             <TextInput
               style={styles.input}
@@ -91,11 +190,11 @@ export const SellModal = ({ isVisible, onClose, currentQuantity, productName, pr
               value={quantity}
               onChangeText={(text) => handleQuantityChange(text)}
             />
-            {error !== "" && (
-              <Text style={styles.errorText}>{error}</Text>
-            )}
+            {error !== "" && <Text style={styles.errorText}>{error}</Text>}
             <View style={styles.taxContainer}>
-              <Text style={styles.taxText}>Taxa: {taxRate * 100}% sobre o produto</Text>
+              <Text style={styles.taxText}>
+                Taxa: {taxRate * 100}% sobre o produto
+              </Text>
             </View>
             <TouchableOpacity onPress={handleCalculateFinalValue}>
               <Text style={styles.calculateButton}>Calcular</Text>
@@ -150,6 +249,11 @@ const styles = StyleSheet.create({
     color: "#A9A9A9",
   },
   productQuantityText: {
+    marginBottom: 10,
+    fontSize: 16,
+    color: "#A9A9A9",
+  },
+  expiryDateText: {
     marginBottom: 10,
     fontSize: 16,
     color: "#A9A9A9",
