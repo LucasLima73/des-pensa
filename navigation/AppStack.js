@@ -9,6 +9,8 @@ import { Market } from "../screens/Market/Market";
 import { Profile } from "../screens/Profile/Profile";
 import { SellModal } from "../screens/SellModal/SellModal";
 import { Notification } from "../screens/Notification/Notification";
+import Chat from "../screens/Chat/Chat";
+import ChatList from "../screens/Chat/ChatList";
 
 const Stack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
@@ -35,7 +37,8 @@ const HomeStack = () => {
           ),
         })}
       />
-      <Stack.Screen name="Notification" component={Notification} />
+      <Stack.Screen name="Chats" component={Chat} />
+      <Stack.Screen name="Chatlist" component={Chat} />
     </Stack.Navigator>
   );
 };
@@ -63,7 +66,7 @@ export const AppStack = () => {
         }}
       />
       <Tabs.Screen
-        name="Market"
+        name="Mini-Mercado"
         component={Market}
         options={{
           tabBarIcon: ({ color, size }) => (
@@ -72,11 +75,29 @@ export const AppStack = () => {
         }}
       />
       <Tabs.Screen
-        name="Profile"
+        name="Perfil"
         component={Profile}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-outline" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="Chatlist"
+        component={ChatList}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="chatbox" color={color} size={size} />
+          ),
+        }}
+      />
+       <Tabs.Screen
+        name="Chats"
+        component={Chat}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="chatbox" color={color} size={size} />
           ),
         }}
       />
