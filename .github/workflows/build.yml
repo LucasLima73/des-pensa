@@ -3,7 +3,7 @@ name: Expo Build Workflow
 on:
   push:
     branches:
-      - main  # Defina a branch que você deseja acionar o workflow
+      - master  # Defina a branch que você deseja acionar o workflow
 
 jobs:
   expo_build:
