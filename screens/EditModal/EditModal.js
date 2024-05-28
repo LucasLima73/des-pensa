@@ -7,7 +7,6 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
-  Button,
 } from "react-native";
 import {
   getDoc,
@@ -68,12 +67,46 @@ const EditModal = ({ isVisible, onClose, productId }) => {
     const firestore = getFirestore();
     const productRef = doc(firestore, `users/${user.uid}/foods/${productId}`);
 
+    // Remove o produto da coleção "sell" se estiver vendido
+    if (product.sell) {
+      const sellRef = doc(firestore, `users/${user.uid}/sell/${productId}`);
+      const sellMarket = doc(firestore, `sell/${productId}`);
+      console.log(productId);
+      await deleteDoc(sellRef);
+      await deleteDoc(sellMarket);
+    }
+
     await deleteDoc(productRef);
     onClose();
   };
 
   const handleSell = async () => {
-    setIsSellModalVisible(true);
+    // Verifica se o produto está sendo vendido
+    if (!product.sell) {
+      setIsSellModalVisible(true);
+    } else {
+      // Se o produto já está vendido, remove-o da coleção "sell"
+      const firestore = getFirestore();
+      const sellRef = doc(firestore, `users/${user.uid}/sell/${productId}`);
+      await deleteDoc(sellRef);
+      // Define o produto.sell como falso para indicar que não está mais à venda
+      await updateDoc(doc(firestore, `users/${user.uid}/foods/${productId}`), {
+        sell: false,
+      });
+      onClose();
+    }
+  };
+
+  const handleDeleteSell = async () => {
+    const firestore = getFirestore();
+    console.log(`teste: ${productId}`);
+    const sellRef = doc(firestore, `sell/${productId}`);
+    console.log(sellRef);
+    await deleteDoc(sellRef);
+    await updateDoc(doc(firestore, `users/${user.uid}/foods/${productId}`), {
+      sell: false,
+    });
+    onClose();
   };
 
   return (
@@ -110,14 +143,21 @@ const EditModal = ({ isVisible, onClose, productId }) => {
               <TouchableOpacity style={styles.button} onPress={handleSave}>
                 <Text style={styles.buttonText}>Salvar</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.sellButton} onPress={handleSell}>
-                <Text style={styles.sellButtonText}>Vender Produto</Text>
+              <TouchableOpacity
+                style={styles.sellButton}
+                onPress={product.sell ? handleDeleteSell : handleSell}
+              >
+                <Text style={styles.sellButtonText}>
+                  {product.sell ? "Apagar do Mini Mercado" : "Vender Produto"}
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.deleteButton}
                 onPress={handleDelete}
               >
-                <Text style={styles.deleteButtonText}>Apagar Produto</Text>
+                <Text style={styles.deleteButtonText} onPress={handleDelete}>
+                  Apagar Produto
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.closeButton} onPress={onClose}>
                 <Text style={styles.closeButtonText}>Fechar</Text>
@@ -131,6 +171,7 @@ const EditModal = ({ isVisible, onClose, productId }) => {
             productQuantity={quantity}
             productId={productId}
             expiryDate={temporaryExpiryDate}
+            foodId={productId}
           />
         </View>
       </View>

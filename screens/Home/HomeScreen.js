@@ -15,6 +15,8 @@ import {
   getFirestore,
   doc,
   getDoc,
+  query,
+  where,
 } from "firebase/firestore";
 import styles from "./styles";
 import { auth } from "../../config";
@@ -45,9 +47,10 @@ export const HomeScreen = ({ navigation }) => {
     setIsLoading(true);
     if (user) {
       const firestore = getFirestore();
-      const querySnapshot = await getDocs(
-        collection(firestore, `users/${user.uid}/foods`)
+      const q = query(
+        collection(firestore, `users/${user.uid}/foods`),
       );
+      const querySnapshot = await getDocs(q);
       const productsData = querySnapshot.docs.map((doc) => {
         const data = doc.data();
         const expiryDateString = data.expiryDate;
@@ -67,7 +70,8 @@ export const HomeScreen = ({ navigation }) => {
           console.error("Erro ao processar data de validade:", error);
         }
 
-        daysRemaining = daysRemaining >= 0 ? daysRemaining : 0;
+        // Se a data de validade já passou, marque o produto como expirado
+        const isExpired = daysRemaining < 0;
 
         return {
           id: doc.id,
@@ -75,7 +79,9 @@ export const HomeScreen = ({ navigation }) => {
           image: data.image,
           quantity: data.quantity,
           expiryDate: data.expiryDate,
-          daysRemaining: daysRemaining,
+          daysRemaining: daysRemaining >= 0 ? daysRemaining : 0,
+          isExpired: isExpired,
+          sell: data.sell || false, // Defina o campo 'sell' como false se não estiver presente nos dados
         };
       });
       setProducts(productsData);
@@ -141,10 +147,13 @@ export const HomeScreen = ({ navigation }) => {
               <Text style={styles.quantityText}>{product.quantity}</Text>
               <Text style={styles.productName}>{product.name}</Text>
               <Text style={styles.expiryText}>
-                {product.daysRemaining > 7
-                  ? `${product.daysRemaining} dia(s) restante(s)`
-                  : "Expirado"}
+                {product.isExpired
+                  ? "Expirado"
+                  : `${product.daysRemaining} dia(s) restante(s)`}
               </Text>
+              {product.sell && (
+                <Text style={styles.sellText}>Produto à venda</Text>
+              )}
               <TouchableOpacity
                 style={styles.editButton}
                 onPress={() => handleEdit(product)}
@@ -163,3 +172,5 @@ export const HomeScreen = ({ navigation }) => {
     </View>
   );
 };
+
+export default HomeScreen;

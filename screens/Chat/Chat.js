@@ -69,7 +69,7 @@ export default function Chat() {
   return (
     <View style={styles.container}>
       <GiftedChat
-        messages={messages}
+        messages={messages.slice().reverse()} // Invertendo a ordem das mensagens
         onSend={onSend}
         user={{
           _id: user.uid,

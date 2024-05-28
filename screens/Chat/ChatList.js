@@ -16,6 +16,7 @@ export default function ChatList() {
   const [chats, setChats] = useState([]);
   const navigation = useNavigation();
   const user = getAuth().currentUser;
+
   useEffect(() => {
     const q = query(
       collection(db, "chats"),
@@ -45,7 +46,7 @@ export default function ChatList() {
           style={styles.chatItem}
           onPress={() => handleChatPress(chat)}
         >
-          <Text style={styles.userName}>
+          <Text style={styles.productName}>
             {`Você comprou ${chat.product}`}
           </Text>
         </TouchableOpacity>
@@ -57,8 +58,7 @@ export default function ChatList() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: "#fff",
   },
   chatItem: {
     padding: 20,
@@ -66,7 +66,9 @@ const styles = StyleSheet.create({
     borderBottomColor: "#ccc",
     width: "100%",
   },
-  userName: {
-    fontSize: 18,
+  productName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
   },
 });

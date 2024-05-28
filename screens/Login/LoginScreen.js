@@ -3,6 +3,7 @@ import { Text, StyleSheet } from "react-native";
 import { Formik } from "formik";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { getAnalytics, logEvent } from "firebase/analytics";
 
 import {
   View,
@@ -19,13 +20,17 @@ export const LoginScreen = ({ navigation }) => {
   const [errorState, setErrorState] = useState("");
   const { passwordVisibility, handlePasswordVisibility, rightIcon } =
     useTogglePasswordVisibility();
+  const analytics = getAnalytics();
 
   const handleLogin = (values) => {
     const { email, password } = values;
-    signInWithEmailAndPassword(auth, email, password).catch((error) =>
-      setErrorState(error.message)
-    );
+    signInWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        logEvent(analytics, "login", { method: "email" });
+      })
+      .catch((error) => setErrorState(error.message));
   };
+
   return (
     <>
       <View isSafe style={styles.container}>
@@ -167,6 +172,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     color: Colors.white,
-    
   },
 });

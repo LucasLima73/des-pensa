@@ -9,9 +9,17 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; // Importe o ícone do Ionicons
-import { getFirestore, collection, addDoc, doc , getDoc} from "firebase/firestore"; // Import necessary Firestore functions
-import { getAuth } from "firebase/auth"; // Import the auth function
+import { Ionicons } from "@expo/vector-icons";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  setDoc,
+  doc,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 export const SellModal = ({
   isVisible,
@@ -20,27 +28,27 @@ export const SellModal = ({
   productName,
   productQuantity,
   expiryDate,
+  foodId, // Recebe foodId como propriedade
 }) => {
   const [productValue, setProductValue] = useState("");
   const [quantity, setQuantity] = useState("");
   const [error, setError] = useState("");
-  const taxRate = 0.05; // Taxa de 5%
+  const taxRate = 0.05;
   const [finalValue, setFinalValue] = useState("");
   const [currentRemainingQuantity, setCurrentRemainingQuantity] =
     useState(currentQuantity);
-  const [bairros, setBairros] = useState({}); // Alteração do nome do estado para "bairros" e inicialização como um objeto vazio
+  const [bairros, setBairros] = useState({});
 
   useEffect(() => {
     const fetchUserData = async () => {
       const user = getAuth().currentUser;
       if (user) {
         const firestore = getFirestore();
-        const userRef = doc(firestore, "users", user.uid); // Obtenha a referência do documento do usuário
-        const userData = await getDoc(userRef); // Obtenha os dados do documento do usuário
+        const userRef = doc(firestore, "users", user.uid);
+        const userData = await getDoc(userRef);
         if (userData.exists()) {
           const userDataObj = userData.data();
-          setBairros(userDataObj.bairro); // Defina o estado "bairros" com os bairros do usuário
-          console.log("Bairros do usuário:", userDataObj.bairro); // Adicione este log para verificar os bairros
+          setBairros(userDataObj.bairro);
         } else {
           console.log("Dados do usuário não encontrados.");
         }
@@ -115,25 +123,41 @@ export const SellModal = ({
       return;
     }
 
+    const foodRef = doc(firestore, `users/${user.uid}/foods`, foodId); // Use foodId passado como propriedade
+
+    try {
+      await updateDoc(foodRef, {
+        sell: true,
+      });
+      console.log("Documento foods atualizado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao atualizar o documento foods:", error);
+    }
+
     const saleData = {
+      sell: true,
       productName,
       productValue: parseFloat(productValue),
       quantity: parseInt(quantity),
       finalValue: parseFloat(finalValue),
       userId: user.uid,
       expiryDate,
-      bairros, // Adicionando o bairro aos dados da venda
+      bairros,
       timestamp: new Date(),
     };
 
+    console.log("Dados da venda a serem adicionados:", saleData);
+
     try {
-      await addDoc(sellRef, saleData);
+      const sellDocRef = doc(firestore, "sell", foodId);
+      await setDoc(sellDocRef, saleData); // Use setDoc em vez de addDoc para definir o documento com o mesmo ID
       console.log("Venda publicada com sucesso!");
       handleModalClose();
     } catch (error) {
       console.error("Erro ao publicar a venda: ", error);
       setError("Erro ao publicar a venda. Tente novamente.");
     }
+    
   };
 
   const handleModalClose = () => {

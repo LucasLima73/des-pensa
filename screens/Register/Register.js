@@ -12,6 +12,8 @@ import {
   Text,
 } from "react-native";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { getAnalytics, logEvent } from "firebase/analytics";
+
 import { getAuth } from "firebase/auth";
 import * as Notifications from "expo-notifications";
 import styles from "./styles"; // Importe os estilos
@@ -34,6 +36,7 @@ export default function Register() {
       Alert.alert("Erro", "Todos os campos devem ser preenchidos.");
       return;
     }
+    const analytics = getAnalytics();
 
     const user = getAuth().currentUser;
     if (user) {
@@ -81,7 +84,7 @@ export default function Register() {
         } else {
           console.log("Notificação não agendada, pois a data é no passado.");
         }
-
+        logEvent(analytics, "add_product", { productName: name });
         setName("");
         setExpiryDate("");
         setQuantity("");
@@ -117,7 +120,8 @@ export default function Register() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView style={styles.container} behavior="padding">
         <Text style={styles.instructionText}>
-          Adicione aqui seus produtos e deixe que nosso app cuide de tudo para você
+          Adicione aqui seus produtos e deixe que nosso app cuide de tudo para
+          você
         </Text>
         <TextInput
           style={[styles.input, nameError && styles.errorInput]}

@@ -65,7 +65,7 @@ export const Profile = () => {
       ) : (
         <>
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Name:</Text>
+            <Text style={styles.label}>Nome:</Text>
             <TextInput
               style={styles.input}
               value={name}
