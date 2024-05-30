@@ -12,11 +12,9 @@ import {
   Text,
 } from "react-native";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
-import { getAnalytics, logEvent } from "firebase/analytics";
-
 import { getAuth } from "firebase/auth";
 import * as Notifications from "expo-notifications";
-import styles from "./styles"; // Importe os estilos
+import styles from "./styles"; // Import styles
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -36,7 +34,6 @@ export default function Register() {
       Alert.alert("Erro", "Todos os campos devem ser preenchidos.");
       return;
     }
-    const analytics = getAnalytics();
 
     const user = getAuth().currentUser;
     if (user) {
@@ -84,7 +81,10 @@ export default function Register() {
         } else {
           console.log("Notificação não agendada, pois a data é no passado.");
         }
+
+        await logRegistrationEvent(name, user.uid);
         logEvent(analytics, "add_product", { productName: name });
+
         setName("");
         setExpiryDate("");
         setQuantity("");
@@ -102,6 +102,25 @@ export default function Register() {
       } finally {
         setLoading(false);
       }
+    }
+  };
+
+  const logRegistrationEvent = async (productName, userId) => {
+    const firestore = getFirestore();
+    const analyticsCollection = collection(firestore, "analytics");
+
+    const event = {
+      event: "product_registered",
+      userId: userId,
+      productName: productName,
+      timestamp: new Date(),
+    };
+
+    try {
+      await addDoc(analyticsCollection, event);
+      console.log("Evento de registro de produto salvo em analytics");
+    } catch (error) {
+      console.error("Erro ao registrar evento de produto: ", error);
     }
   };
 

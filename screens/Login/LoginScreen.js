@@ -1,9 +1,14 @@
 import React, { useState } from "react";
 import { Text, StyleSheet } from "react-native";
 import { Formik } from "formik";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword,getAuth } from "firebase/auth";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { getAnalytics, logEvent } from "firebase/analytics";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  Firestore,
+} from "firebase/firestore";
 
 import {
   View,
@@ -20,15 +25,26 @@ export const LoginScreen = ({ navigation }) => {
   const [errorState, setErrorState] = useState("");
   const { passwordVisibility, handlePasswordVisibility, rightIcon } =
     useTogglePasswordVisibility();
-  const analytics = getAnalytics();
+  const firestore = getFirestore();
 
-  const handleLogin = (values) => {
+  const handleLogin = async (values) => {
     const { email, password } = values;
-    signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        logEvent(analytics, "login", { method: "email" });
-      })
-      .catch((error) => setErrorState(error.message));
+    const auth = getAuth();
+    const firestore = getFirestore();
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+
+      // Log the login event to Firestore as an event in the "analytics" collection
+      await addDoc(collection(firestore, "analytics"), {
+        event: "login",
+        email,
+        method: "email",
+        timestamp: new Date(),
+      });
+    } catch (error) {
+      setErrorState(error.message);
+    }
   };
 
   return (

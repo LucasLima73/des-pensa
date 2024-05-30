@@ -16,7 +16,7 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { SellModal } from "../SellModal/SellModal";
+import SellModal from "../SellModal/SellModal";
 
 const EditModal = ({ isVisible, onClose, productId }) => {
   const [product, setProduct] = useState(null);
@@ -25,7 +25,6 @@ const EditModal = ({ isVisible, onClose, productId }) => {
   const [expiryDate, setExpiryDate] = useState("");
   const [temporaryExpiryDate, setTemporaryExpiryDate] = useState("");
   const [image, setImage] = useState("");
-  const [userName, setUserName] = useState("");
   const [isSellModalVisible, setIsSellModalVisible] = useState(false);
   const user = getAuth().currentUser;
 
@@ -169,8 +168,9 @@ const EditModal = ({ isVisible, onClose, productId }) => {
             onClose={() => setIsSellModalVisible(false)}
             productName={name}
             productQuantity={quantity}
-            productId={productId}
             expiryDate={temporaryExpiryDate}
+            image={image}  // Pass the image prop here
+            currentQuantity={quantity}
             foodId={productId}
           />
         </View>

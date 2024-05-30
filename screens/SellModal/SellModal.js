@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -10,16 +10,8 @@ import {
   Keyboard,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  setDoc,
-  doc,
-  getDoc,
-  updateDoc,
-} from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { doc, setDoc, getFirestore } from "firebase/firestore"; // Import Firestore functions
+import { useNavigation } from "@react-navigation/native"; // Import useNavigation
 
 export const SellModal = ({
   isVisible,
@@ -27,52 +19,41 @@ export const SellModal = ({
   currentQuantity,
   productName,
   productQuantity,
-  expiryDate,
-  foodId, // Recebe foodId como propriedade
 }) => {
+  const navigation = useNavigation(); // Use the useNavigation hook to access navigation
   const [productValue, setProductValue] = useState("");
   const [quantity, setQuantity] = useState("");
   const [error, setError] = useState("");
-  const taxRate = 0.05;
+  const taxRate = 0.05; // 5% Tax
   const [finalValue, setFinalValue] = useState("");
   const [currentRemainingQuantity, setCurrentRemainingQuantity] =
     useState(currentQuantity);
-  const [bairros, setBairros] = useState({});
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const user = getAuth().currentUser;
-      if (user) {
-        const firestore = getFirestore();
-        const userRef = doc(firestore, "users", user.uid);
-        const userData = await getDoc(userRef);
-        if (userData.exists()) {
-          const userDataObj = userData.data();
-          setBairros(userDataObj.bairro);
-        } else {
-          console.log("Dados do usuário não encontrados.");
-        }
-      } else {
-        console.log("Usuário não autenticado.");
-      }
-    };
-
-    fetchUserData();
-  }, []);
 
   const handleCalculateFinalValue = () => {
-    if (parseFloat(productValue) && parseFloat(quantity)) {
-      const totalProductValue = parseFloat(productValue) * parseFloat(quantity);
-      const finalPrice = totalProductValue * (1 + taxRate);
-      setFinalValue(finalPrice.toFixed(2));
-      setError("");
+    if (productValue && quantity) {
+      const parsedProductValue = parseFloat(productValue);
+      const parsedQuantity = parseFloat(quantity);
+      if (!isNaN(parsedProductValue) && !isNaN(parsedQuantity)) {
+        const totalProductValue = parsedProductValue * parsedQuantity;
+        const taxAmount = (totalProductValue * taxRate).toFixed(2);
+        const finalPrice = (totalProductValue + parseFloat(taxAmount)).toFixed(
+          2
+        );
+        setFinalValue(finalPrice);
+        setError("");
+      } else {
+        setFinalValue("");
+        setError(
+          "Por favor, insira um valor válido para o produto e a quantidade."
+        );
+      }
     } else {
       setFinalValue("");
       setError(
-        "Por favor, insira um valor válido para o produto e a quantidade."
+        "Por favor, insira valores numéricos para o produto e a quantidade."
       );
     }
-    Keyboard.dismiss(); // Fecha o teclado
+    Keyboard.dismiss();
   };
 
   const handleQuantityChange = (text) => {
@@ -104,60 +85,10 @@ export const SellModal = ({
     }
   };
 
-  const handlePublishSale = async () => {
-    if (finalValue === "" || quantity === "" || productValue === "") {
-      setError(
-        "Por favor, preencha todos os campos e calcule o valor final antes de publicar a venda."
-      );
-      return;
-    }
-
-    const firestore = getFirestore();
-    const sellRef = collection(firestore, "sell");
-    const user = getAuth().currentUser;
-
-    if (!user) {
-      setError(
-        "Usuário não autenticado. Por favor, faça login e tente novamente."
-      );
-      return;
-    }
-
-    const foodRef = doc(firestore, `users/${user.uid}/foods`, foodId); // Use foodId passado como propriedade
-
-    try {
-      await updateDoc(foodRef, {
-        sell: true,
-      });
-      console.log("Documento foods atualizado com sucesso!");
-    } catch (error) {
-      console.error("Erro ao atualizar o documento foods:", error);
-    }
-
-    const saleData = {
-      sell: true,
-      productName,
-      productValue: parseFloat(productValue),
-      quantity: parseInt(quantity),
-      finalValue: parseFloat(finalValue),
-      userId: user.uid,
-      expiryDate,
-      bairros,
-      timestamp: new Date(),
-    };
-
-    console.log("Dados da venda a serem adicionados:", saleData);
-
-    try {
-      const sellDocRef = doc(firestore, "sell", foodId);
-      await setDoc(sellDocRef, saleData); // Use setDoc em vez de addDoc para definir o documento com o mesmo ID
-      console.log("Venda publicada com sucesso!");
-      handleModalClose();
-    } catch (error) {
-      console.error("Erro ao publicar a venda: ", error);
-      setError("Erro ao publicar a venda. Tente novamente.");
-    }
-    
+  const handlePublishSale = () => {
+    // Implemente a lógica para publicar a venda
+    console.log("Venda publicada!");
+    // Aqui você pode adicionar a lógica para publicar a venda, como enviar os dados para um servidor, por exemplo.
   };
 
   const handleModalClose = () => {
@@ -194,9 +125,6 @@ export const SellModal = ({
             </Text>
             <Text style={styles.productQuantityText}>
               Quantidade do Produto: {productQuantity}
-            </Text>
-            <Text style={styles.expiryDateText}>
-              Data de Validade: {expiryDate}
             </Text>
             <TextInput
               style={styles.input}
@@ -273,11 +201,6 @@ const styles = StyleSheet.create({
     color: "#A9A9A9",
   },
   productQuantityText: {
-    marginBottom: 10,
-    fontSize: 16,
-    color: "#A9A9A9",
-  },
-  expiryDateText: {
     marginBottom: 10,
     fontSize: 16,
     color: "#A9A9A9",

@@ -3,7 +3,7 @@ name: Expo Build Workflow
 on:
   push:
     branches:
-      - master  # Defina a branch que você deseja acionar o workflow
+      - master # Defina a branch que você deseja acionar o workflow
 
 jobs:
   expo_build:
@@ -16,15 +16,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: "14"
 
-      - name: Install Expo CLI
-        run: npm install -g expo-cli
+      - name: Install Eas CLI
+        run: npm install -g eas-cli
 
-      - name: Log in to Expo
-        run: expo login -u lucaslimabaseo@gmail.com -p Rammstein123@#
+      - name: Log in to Eas
+        run: eas login -u lucaslimabaseo@gmail.com -p Rammstein123@#
 
       - name: Build for Expo
         run: |
           eas build --platform android --profile preview
-

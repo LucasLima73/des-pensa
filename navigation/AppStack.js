@@ -30,13 +30,13 @@ const HomeStack = () => {
           headerRight: () => (
             <View style={{ marginRight: 25 }}>
               <NotificationButton
-                onPress={() => navigation.navigate("Notification")}
+                onPress={() => navigation.navigate("Notificação")}
               />
             </View>
           ),
         })}
       />
-       <Stack.Screen name="Notification" component={Notification} />
+      <Stack.Screen name="Notificação" component={Notification} />
       <Stack.Screen name="Chats" component={Chat} />
       <Stack.Screen name="Chatlist" component={Chat} />
     </Stack.Navigator>
@@ -56,7 +56,7 @@ export const AppStack = () => {
           headerShown: false,
         }}
       />
-     
+
       <Tabs.Screen
         name="Mini-Mercado"
         component={Market}
@@ -66,13 +66,17 @@ export const AppStack = () => {
           ),
         }}
       />
-       <Tabs.Screen
+      <Tabs.Screen
         name="Adicionar"
         component={Register}
         options={{
           tabBarIcon: ({ color, size }) => (
             <View style={[styles.addButton, { backgroundColor: color }]}>
-              <Ionicons name="add-circle-outline" color="#fff" size={size * 1.5} />
+              <Ionicons
+                name="add-circle-outline"
+                color="#fff"
+                size={size * 1.5}
+              />
             </View>
           ),
         }}
@@ -95,7 +99,6 @@ export const AppStack = () => {
           ),
         }}
       />
-      
     </Tabs.Navigator>
   );
 };
