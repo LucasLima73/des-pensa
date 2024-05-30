@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      EAS_EMAIL: ${{ secrets.EAS_EMAIL }}
-      EAS_PASSWORD: ${{ secrets.EAS_PASSWORD }}
+      EXPO_CLI_USERNAME: ${{ secrets.EXPO_CLI_USERNAME }}
+      EXPO_CLI_PASSWORD: ${{ secrets.EXPO_CLI_PASSWORD }}
 
     steps:
       - name: Checkout Repository
@@ -22,12 +22,13 @@ jobs:
         with:
           node-version: "14"
 
-      - name: Install Eas CLI
-        run: npm install -g eas-cli
+      - name: Install Expo CLI
+        run: npm install -g expo-cli
 
-      - name: Log in to Eas
+      - name: Log in to Expo
         run: |
-          eas login --email lucaslimabaseo@gmail.com --password Rammstein123@#
+          expo login -u lucaslimabaseo@gmail.com -p Rammstein123@#
+          expo whoami
 
       - name: Build for Expo
         run: |
