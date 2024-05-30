@@ -9,6 +9,10 @@ jobs:
   expo_build:
     runs-on: ubuntu-latest
 
+    env:
+      EAS_EMAIL: ${{ secrets.EAS_EMAIL }}
+      EAS_PASSWORD: ${{ secrets.EAS_PASSWORD }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -23,10 +27,7 @@ jobs:
 
       - name: Log in to Eas
         run: |
-          echo "lucaslimabaseo@gmail.com" | eas login
-          sleep 2
-          echo "Rammstein123@#" | eas login
-          sleep 2
+          eas login --email lucaslimabaseo@gmail.com --password Rammstein123@#
 
       - name: Build for Expo
         run: |

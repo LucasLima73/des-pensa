@@ -83,7 +83,6 @@ export default function Register() {
         }
 
         await logRegistrationEvent(name, user.uid);
-        logEvent(analytics, "add_product", { productName: name });
 
         setName("");
         setExpiryDate("");
