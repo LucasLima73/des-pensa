@@ -22,7 +22,11 @@ jobs:
         run: npm install -g eas-cli
 
       - name: Log in to Eas
-        run: eas login -u lucaslimabaseo@gmail.com -p Rammstein123@#
+        run: |
+          echo "lucaslimabaseo@gmail.com" | eas login
+          sleep 2
+          echo "Rammstein123@#" | eas login
+          sleep 2
 
       - name: Build for Expo
         run: |
