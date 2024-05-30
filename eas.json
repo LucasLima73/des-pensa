@@ -3,9 +3,7 @@
     "version": ">= 9.1.0"
   },
   "build": {
-    "env": {
-      "EXPO_PUBLIC_API_URL": "https://api.production.com"
-    },
+    "env": {},
     "development": {
       "developmentClient": true,
       "distribution": "internal"
@@ -13,7 +11,9 @@
     "preview": {
       "distribution": "internal"
     },
-    "production": {}
+    "production": {},
+    "distribution": "internal",
+    "EXPO_PUBLIC_API_URL": "https://api.production.com"
   },
   "submit": {
     "production": {}
