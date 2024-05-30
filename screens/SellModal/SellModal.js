@@ -64,15 +64,34 @@ export const SellModal = ({
   }, []);
 
   const handleCalculateFinalValue = () => {
-    if (parseFloat(productValue) && parseFloat(quantity)) {
-      const totalProductValue = parseFloat(productValue) * parseFloat(quantity);
-      const finalPrice = totalProductValue * (1 + taxRate); // Aplica a taxa sobre o valor total
-      setFinalValue(finalPrice.toFixed(2));
-      setError("");
+    if (productValue && quantity) {
+      // Substituir vírgula por ponto para conversão correta em números flutuantes
+      const parsedProductValue = parseFloat(productValue.replace(",", "."));
+      const parsedQuantity = parseInt(quantity.replace(",", "."));
+
+      if (!isNaN(parsedProductValue) && !isNaN(parsedQuantity)) {
+        // Calcular o valor total dos produtos baseado na quantidade
+        const totalProductValue = parsedProductValue * parsedQuantity;
+
+        // Calcular a quantidade de taxa a ser adicionada
+        const taxAmount = totalProductValue * taxRate;
+
+        // Adicionar a taxa ao valor total do produto
+        const finalPrice = totalProductValue + taxAmount;
+
+        // Assegurar que o valor final seja arredondado corretamente para duas casas decimais
+        setFinalValue(parseFloat(finalPrice).toFixed(2)); // Garante que o arredondamento seja aplicado corretamente
+        setError("");
+      } else {
+        setFinalValue("");
+        setError(
+          "Por favor, insira um valor válido para o produto e a quantidade."
+        );
+      }
     } else {
       setFinalValue("");
       setError(
-        "Por favor, insira um valor válido para o produto e a quantidade."
+        "Por favor, insira valores numéricos para o produto e a quantidade."
       );
     }
     Keyboard.dismiss();

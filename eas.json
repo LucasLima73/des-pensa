@@ -3,19 +3,17 @@
     "version": ">= 9.1.0"
   },
   "build": {
-    "env": {
-      "EXPO_PUBLIC_API_URL": "https://191.235.115.172/"
-    },
+    "env": {},
     "development": {
       "developmentClient": true,
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://191.235.115.172/"
+      }
     },
-    "production": {}
-  },
-  "submit": {
     "production": {}
   }
 }
