@@ -4,7 +4,7 @@
   },
   "build": {
     "env": {
-      "EXPO_PUBLIC_API_URL": "https://api.production.com"
+      "EXPO_PUBLIC_API_URL": "https://191.235.115.172/"
     },
     "development": {
       "developmentClient": true,
