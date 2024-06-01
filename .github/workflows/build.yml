@@ -34,4 +34,4 @@ jobs:
       - name: Set the variables
         run: echo "DEPLOY_PLATFORM=${{ inputs.platform || 'all' }}" >> $GITHUB_ENV
       - name: Build on EAS
-        run: eas build --platform android --non-interactive --no-wait --profile production
+        run: eas build --platform android --non-interactive --no-wait --profile preview
