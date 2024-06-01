@@ -25,19 +25,10 @@ jobs:
         run: npm install -g expo-cli
 
       - name: Log in to Expo
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
-          eas login --token $EXPO_TOKEN
-          eas whoami
+          expo login -u lucaslimabaseo@gmail.com -p Rammstein123@#
+          expo whoami
 
       - name: Build for Expo
-        run: eas build --platform android --profile preview
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: app
-          path: |
-            **/*.apk
-            **/*.aab
+        run: |
+          eas build --platform android --profile preview
