@@ -9,10 +9,7 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal",
-      "env": {
-        "EXPO_PUBLIC_API_URL": "https://191.235.115.172/"
-      }
+      "distribution": "internal"
     },
     "production": {}
   }
