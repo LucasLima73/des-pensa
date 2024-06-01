@@ -1,53 +1,37 @@
-name: Expo Build Workflow
-
+name: EAS Build
 on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: "Which platform to build for?"
+        required: true
+        type: choice
+        default: all
+        options:
+          - ios
+          - android
+          - all
   push:
     branches:
-      - master # Defina a branch que você deseja acionar o workflow
-
+      - production # or `main`, or whatever you use
 jobs:
-  expo_build:
+  build:
+    name: Install and build
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: "14"
-
-      - name: Install Eas CLI
-        run: npm install -g eas-cli
-
-      - name: Install Expo CLI
-        run: npm install -g expo-cli
-
-      - name: Log in to Expo
-        run: |
-          expo login -u lucaslimabaseo@gmail.com -p Rammstein123@#
-          expo whoami
-
-     - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 18.x
-          cache: yarn
-
-      - name: Setup EAS
+          cache: npm
+      - name: Setup Expo and EAS
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
-
       - name: Install dependencies
-        run: yarn install
-
-      - name: Create preview
-        uses: expo/expo-github-action/preview@v8
-        with:
-          command: eas update --auto
+        run: npm ci
+      - name: Set the variables
+        run: echo "DEPLOY_PLATFORM=${{ inputs.platform || 'all' }}" >> $GITHUB_ENV
+      - name: Build on EAS
+        run: eas build --platform android --non-interactive --no-wait --profile production
