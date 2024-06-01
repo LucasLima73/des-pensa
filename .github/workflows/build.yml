@@ -29,6 +29,9 @@ jobs:
           expo login -u lucaslimabaseo@gmail.com -p Rammstein123@#
           expo whoami
 
+      - name: Install dependencies
+        run: npm install
+
       - name: Build for Expo
         run: |
           eas build --platform android --profile preview
