@@ -25,9 +25,10 @@ jobs:
         run: npm install -g expo-cli
 
       - name: Log in to Expo
-
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
-          eas login --token yCJFztiW8BMYsYKrgMM45iYyqk69vULoBlsZwzz8
+          eas login --token $EXPO_TOKEN
           eas whoami
 
       - name: Build for Expo
