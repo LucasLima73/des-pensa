@@ -31,6 +31,16 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
       - name: Install dependencies
         run: npm ci
+          - name: Install Eas CLI
+        run: npm install -g eas-cli
+
+      - name: Install Expo CLI
+        run: npm install -g expo-cli
+
+      - name: Log in to Expo
+        run: |
+          expo login -u lucaslimabaseo@gmail.com -p Rammstein123@#
+          expo whoami
       - name: Set the variables
         run: echo "DEPLOY_PLATFORM=${{ inputs.platform || 'all' }}" >> $GITHUB_ENV
       - name: Build on EAS
