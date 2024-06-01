@@ -11,7 +11,7 @@
     "preview": {
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "http://localhost:3000/posts"
+        "EXPO_PUBLIC_API_URL": "http://api.local"
       }
     },
     "production": {}
