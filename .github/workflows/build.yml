@@ -13,7 +13,7 @@ on:
           - all
   push:
     branches:
-      - production # or `main`, or whatever you use
+      - master # or `main`, or whatever you use
 jobs:
   build:
     name: Install and build
