@@ -9,10 +9,6 @@ jobs:
   expo_build:
     runs-on: ubuntu-latest
 
-    env:
-      EXPO_CLI_USERNAME: ${{ secrets.EXPO_CLI_USERNAME }}
-      EXPO_CLI_PASSWORD: ${{ secrets.EXPO_CLI_PASSWORD }}
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -29,10 +25,18 @@ jobs:
         run: npm install -g expo-cli
 
       - name: Log in to Expo
+
         run: |
-          expo login -u lucaslimabaseo@gmail.com -p Rammstein123@#
-          expo whoami
+          eas login --token yCJFztiW8BMYsYKrgMM45iYyqk69vULoBlsZwzz8
+          eas whoami
 
       - name: Build for Expo
-        run: |
-          eas build --platform android --profile preview
+        run: eas build --platform android --profile preview
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: app
+          path: |
+            **/*.apk
+            **/*.aab
