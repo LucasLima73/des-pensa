@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   View,
   TextInput,
@@ -10,16 +10,16 @@ import {
   Alert,
   ToastAndroid,
   Text,
-} from "react-native";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-import * as Notifications from "expo-notifications";
-import styles from "./styles"; // Import styles
+} from 'react-native';
+import { getFirestore, collection, addDoc } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import * as Notifications from 'expo-notifications';
+import styles from './styles'; // Import styles
 
 export default function Register() {
-  const [name, setName] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
-  const [quantity, setQuantity] = useState("");
+  const [name, setName] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
+  const [quantity, setQuantity] = useState('');
   const [loading, setLoading] = useState(false);
   const [nameError, setNameError] = useState(false);
   const [expiryDateError, setExpiryDateError] = useState(false);
@@ -31,7 +31,22 @@ export default function Register() {
       if (!expiryDate) setExpiryDateError(true);
       if (!quantity) setQuantityError(true);
 
-      Alert.alert("Erro", "Todos os campos devem ser preenchidos.");
+      Alert.alert('Erro', 'Todos os campos devem ser preenchidos.');
+      return;
+    }
+
+    // Validate the expiry date
+    const now = new Date();
+    const expiryDateParts = expiryDate.split('/');
+    const enteredDate = new Date(
+      parseInt(expiryDateParts[2]),
+      parseInt(expiryDateParts[1]) - 1,
+      parseInt(expiryDateParts[0])
+    );
+
+    if (enteredDate <= now) {
+      setExpiryDateError(true);
+      Alert.alert('Erro', 'A data de validade deve ser uma data futura.');
       return;
     }
 
@@ -49,12 +64,10 @@ export default function Register() {
           expiryDate: formattedDate,
           quantity: quantity,
           image:
-            "https://img.freepik.com/vetores-gratis/saco-de-papel-de-transportadora-de-supermercado-com-alimentos_1284-35997.jpg",
+            'https://img.freepik.com/vetores-gratis/saco-de-papel-de-transportadora-de-supermercado-com-alimentos_1284-35997.jpg',
         });
-        console.log("Item de comida adicionado!");
+        console.log('Item de comida adicionado!');
 
-        const now = new Date();
-        const expiryDateParts = formattedDate.split("/");
         const notificationDate = new Date(
           parseInt(expiryDateParts[2]),
           parseInt(expiryDateParts[1]) - 1,
@@ -65,13 +78,13 @@ export default function Register() {
         if (notificationDate > now) {
           const trigger = { date: notificationDate };
           const content = {
-            title: "Alerta de Validade!",
+            title: 'Alerta de Validade!',
             body: `O produto "${name}" está vencendo em breve!`,
             data: { productId: name },
           };
 
           await Notifications.scheduleNotificationAsync({ content, trigger });
-          console.log("Notificação agendada para:", notificationDate);
+          console.log('Notificação agendada para:', notificationDate);
 
           ToastAndroid.showWithGravity(
             `Notificação ativada para ${name}`,
@@ -79,24 +92,24 @@ export default function Register() {
             ToastAndroid.BOTTOM
           );
         } else {
-          console.log("Notificação não agendada, pois a data é no passado.");
+          console.log('Notificação não agendada, pois a data é no passado.');
         }
 
         await logRegistrationEvent(name, user.uid);
 
-        setName("");
-        setExpiryDate("");
-        setQuantity("");
+        setName('');
+        setExpiryDate('');
+        setQuantity('');
         Keyboard.dismiss();
         Alert.alert(
-          "Sucesso",
-          "Produto adicionado com sucesso em sua despensa, e você será notificado 7 dias antes do seu vencimento!"
+          'Sucesso',
+          'Produto adicionado com sucesso em sua despensa, e você será notificado 7 dias antes do seu vencimento!'
         );
       } catch (error) {
-        console.error("Erro ao adicionar item de comida: ", error);
+        console.error('Erro ao adicionar item de comida: ', error);
         Alert.alert(
-          "Erro",
-          "Falha ao adicionar item de comida. Tente novamente mais tarde."
+          'Erro',
+          'Falha ao adicionar item de comida. Tente novamente mais tarde.'
         );
       } finally {
         setLoading(false);
@@ -106,10 +119,10 @@ export default function Register() {
 
   const logRegistrationEvent = async (productName, userId) => {
     const firestore = getFirestore();
-    const analyticsCollection = collection(firestore, "analytics");
+    const analyticsCollection = collection(firestore, 'analytics');
 
     const event = {
-      event: "product_registered",
+      event: 'product_registered',
       userId: userId,
       productName: productName,
       timestamp: new Date(),
@@ -117,18 +130,18 @@ export default function Register() {
 
     try {
       await addDoc(analyticsCollection, event);
-      console.log("Evento de registro de produto salvo em analytics");
+      console.log('Evento de registro de produto salvo em analytics');
     } catch (error) {
-      console.error("Erro ao registrar evento de produto: ", error);
+      console.error('Erro ao registrar evento de produto: ', error);
     }
   };
 
   const handleExpiryDateChange = (text) => {
     const formatted = text
-      .replace(/\D/g, "")
-      .replace(/(\d{2})(\d)/, "$1/$2")
-      .replace(/(\d{2})(\d)/, "$1/$2")
-      .replace(/(\d{4})\d+?$/, "$1");
+      .replace(/\D/g, '')
+      .replace(/(\d{2})(\d)/, '$1/$2')
+      .replace(/(\d{2})(\d)/, '$1/$2')
+      .replace(/(\d{4})\d+?$/, '$1');
 
     setExpiryDate(formatted);
     setExpiryDateError(false);

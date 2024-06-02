@@ -50,16 +50,20 @@ const EditModal = ({ isVisible, onClose, productId }) => {
   }, [isVisible, productId]);
 
   const handleSave = async () => {
-    const firestore = getFirestore();
-    const productRef = doc(firestore, `users/${user.uid}/foods/${productId}`);
+    if (name && quantity && temporaryExpiryDate && image) {
+      const firestore = getFirestore();
+      const productRef = doc(firestore, `users/${user.uid}/foods/${productId}`);
 
-    await updateDoc(productRef, {
-      name,
-      quantity: parseInt(quantity),
-      expiryDate: temporaryExpiryDate,
-      image,
-    });
-    onClose();
+      await updateDoc(productRef, {
+        name,
+        quantity: parseInt(quantity),
+        expiryDate: temporaryExpiryDate,
+        image,
+      });
+      onClose();
+    } else {
+      alert("Todos os campos são obrigatórios!");
+    }
   };
 
   const handleDelete = async () => {
@@ -108,6 +112,21 @@ const EditModal = ({ isVisible, onClose, productId }) => {
     onClose();
   };
 
+  const isSaveButtonDisabled =
+    !name || !quantity || !temporaryExpiryDate || !image;
+
+  const isExpiredOrExpiringToday = () => {
+    const expiryParts = expiryDate.split("/");
+    const expiryDateObject = new Date(
+      parseInt(expiryParts[2]),
+      parseInt(expiryParts[1]) - 1,
+      parseInt(expiryParts[0])
+    );
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return expiryDateObject <= today;
+  };
+
   return (
     <Modal
       visible={isVisible}
@@ -139,14 +158,30 @@ const EditModal = ({ isVisible, onClose, productId }) => {
                 value={temporaryExpiryDate}
                 onChangeText={(text) => setTemporaryExpiryDate(text)}
               />
-              <TouchableOpacity style={styles.button} onPress={handleSave}>
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  isSaveButtonDisabled && styles.buttonDisabled,
+                ]}
+                onPress={handleSave}
+                disabled={isSaveButtonDisabled}
+              >
                 <Text style={styles.buttonText}>Salvar</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.sellButton}
-                onPress={product.sell ? handleDeleteSell : handleSell}
+                style={[
+                  styles.sellButton,
+                  isExpiredOrExpiringToday() && styles.buttonDisabled,
+                ]}
+                onPress={handleSell}
+                disabled={isExpiredOrExpiringToday()}
               >
-                <Text style={styles.sellButtonText}>
+                <Text
+                  style={[
+                    styles.sellButtonText,
+                    isExpiredOrExpiringToday() && styles.buttonDisabledText,
+                  ]}
+                >
                   {product.sell ? "Apagar do Mini Mercado" : "Vender Produto"}
                 </Text>
               </TouchableOpacity>
@@ -154,9 +189,7 @@ const EditModal = ({ isVisible, onClose, productId }) => {
                 style={styles.deleteButton}
                 onPress={handleDelete}
               >
-                <Text style={styles.deleteButtonText} onPress={handleDelete}>
-                  Apagar Produto
-                </Text>
+                <Text style={styles.deleteButtonText}>Apagar Produto</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.closeButton} onPress={onClose}>
                 <Text style={styles.closeButtonText}>Fechar</Text>
@@ -169,7 +202,7 @@ const EditModal = ({ isVisible, onClose, productId }) => {
             productName={name}
             productQuantity={quantity}
             expiryDate={temporaryExpiryDate}
-            image={image}  // Pass the image prop here
+            image={image} // Pass the image prop here
             currentQuantity={quantity}
             foodId={productId}
           />
@@ -219,6 +252,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
+  buttonDisabled: {
+    backgroundColor: "#ccc",
+  },
   buttonText: {
     color: "#fff",
     fontSize: 16,
@@ -259,6 +295,9 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  buttonDisabledText: {
+    color: "#fff",
   },
 });
 

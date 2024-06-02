@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   TextInput,
   Image,
+  Alert,
 } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import {
@@ -127,7 +128,20 @@ export function Market({ navigation }) {
         chatData
       );
       await logPurchaseEvent(selectedItem); // Log the purchase event
-      navigation.navigate("Chats", { chatId: chatRef.id });
+
+      // Mostrar o alerta e redirecionar para a tela de chats após o usuário fechar o alerta
+      Alert.alert(
+        "Compra realizada",
+        "Você comprou o produto. Será direcionado ao vendedor.",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              navigation.navigate("Chats", { chatId: chatRef.id });
+            },
+          },
+        ]
+      );
     } catch (error) {
       console.error("Erro ao criar chat:", error);
     }
@@ -161,10 +175,7 @@ export function Market({ navigation }) {
                 style={styles.itemContainer}
                 onPress={() => handleItemPress(item)}
               >
-                <Image
-                  source={{ uri: item.image }}
-                  style={styles.itemImage}
-                />
+                <Image source={{ uri: item.image }} style={styles.itemImage} />
                 <View style={styles.itemDetailsContainer}>
                   <Text style={styles.itemName}>{item.productName}</Text>
                   <Text style={styles.itemDetail}>
@@ -236,7 +247,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8f9fa",
   },
   filterInput: {
-    bborderWidth: 1,
+    borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 8,
     padding: 10,

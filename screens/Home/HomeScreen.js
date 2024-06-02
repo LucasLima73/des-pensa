@@ -16,7 +16,6 @@ import {
   doc,
   getDoc,
   query,
-  where,
 } from "firebase/firestore";
 import styles from "./styles";
 import { auth } from "../../config";
@@ -47,9 +46,7 @@ export const HomeScreen = ({ navigation }) => {
     setIsLoading(true);
     if (user) {
       const firestore = getFirestore();
-      const q = query(
-        collection(firestore, `users/${user.uid}/foods`),
-      );
+      const q = query(collection(firestore, `users/${user.uid}/foods`));
       const querySnapshot = await getDocs(q);
       const productsData = querySnapshot.docs.map((doc) => {
         const data = doc.data();
@@ -73,6 +70,9 @@ export const HomeScreen = ({ navigation }) => {
         // Se a data de validade já passou, marque o produto como expirado
         const isExpired = daysRemaining < 0;
 
+        // Se o produto está expirado, defina o campo 'sell' como false
+        const sell = !isExpired && data.sell;
+
         return {
           id: doc.id,
           name: data.name,
@@ -81,7 +81,7 @@ export const HomeScreen = ({ navigation }) => {
           expiryDate: data.expiryDate,
           daysRemaining: daysRemaining >= 0 ? daysRemaining : 0,
           isExpired: isExpired,
-          sell: data.sell || false, // Defina o campo 'sell' como false se não estiver presente nos dados
+          sell: sell, // Atualize o campo 'sell'
         };
       });
       setProducts(productsData);
